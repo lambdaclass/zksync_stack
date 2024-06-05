@@ -93,7 +93,7 @@ explorer:
 	tmux new -d -s e; \
 	tmux send-keys -t e "cd ${ZKSYNC_PROVER_HOME}/prover && export ZKSYNC_HOME=${ZKSYNC_PROVER_HOME}" Enter; \
 	tmux send-keys -t e "cd ${ZKSYNC_EXPLORER_HOME}" Enter; \
-	tmux send-keys -t e "npm run dev" Enter;
+	tmux send-keys -t e "npm run start" Enter;
 
 portal:
 	tmux kill-session -t po; \

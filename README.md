@@ -2,9 +2,9 @@
 
 ## Before running the stack
 
-Before running the stack, you need to create a `.env` file in the root directory of the repository. You can find a template for the `.env` file in the `.env.example` file. You can copy the contents of the `.env.example` file into a new `.env` file and fill in the necessary values.
+Before running the stack, you need to update the exports in the Makefile and also, you need to complete the `shyft.toml` file which will be your L2 configuration file. The fields that you need to fill are related to private keys and addresses. For instance, you should have a minimum of two funded L1 accounts; one for the operator commit, and one for the operator blobs (then you can have a third one corresponding to the fee account, but it could be the same as the operator commit).
 
-Also, you need to complete the `shyft.toml` file which will be your L2 configuration file. The fields that you need to fill are related to private keys and addresses. For instance, you should have a minimum of two funded L1 accounts; one for the operator commit, and one for the operator blobs (then you can have a third one corresponding to the fee account, but it could be the same as the operator commit).
+> **Note:** The `ZKSYNC_ENV` must match the .toml file name. E.g. if your config file is `shyft.toml` then `ZKSYNC_ENV` should be `shyft`.
 
 ## Running the stack
 
@@ -13,16 +13,10 @@ Also, you need to complete the `shyft.toml` file which will be your L2 configura
 To get started, we need to install all the essential dependencies. You can achieve this by running the following command:
 
 ```
-make deps
+make setup
 ```
 
 This command only installs the dependencies required for running the observability tools over the stack (Prometheus, Grafana). In the future, we'll add the installation for the dependencies needed to run this from a fresh new machine.
-
-Once all the dependencies are successfully installed, you need to set up the stack by running the following command:
-
-```
-make setup
-```
 
 This command will download all the repositories needed to run the stack with a GPU prover in addition to the explorer and the portal.
 
@@ -46,7 +40,6 @@ make up
 Running the following commands will set up the stack with a GPU prover:
 
 ```
-make deps
 make setup-prover
 make up-prover
 ```

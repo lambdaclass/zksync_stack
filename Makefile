@@ -1,18 +1,32 @@
 .PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor
 
+# Homes
 export ZKSYNC_CORE_HOME=$(shell pwd)/zksync-era-core
 export ZKSYNC_PROVER_HOME=$(shell pwd)/zksync-era-prover
 export ZKSYNC_EXPLORER_HOME=$(shell pwd)/explorer
 export ZKSYNC_PORTAL_HOME=$(shell pwd)/portal
-export PATH:=$(ZKSYNC_CORE_HOME)/bin:$(PATH)
-
-source .env
+# Commits
+export CORE_COMMIT=core-v24.7.0
+export PROVER_COMMIT=prover-v14.5.0
+export ZKSYNC_PORTAL_COMMIT=8471411eebcae55dba940bee492ba6cb74a167d3
+# Private keys
+export DEPLOYER_PRIVATE_KEY=0x9a44def091395333181f0e49565d0fc941632a524dd6074389f01c5559a691ec
+export GOVERNANCE_PRIVATE_KEY=0x9a44def091395333181f0e49565d0fc941632a524dd6074389f01c5559a691ec
+export GOVERNOR_PRIVATE_KEY=0x9a44def091395333181f0e49565d0fc941632a524dd6074389f01c5559a691ec
+# Envs
+export ZKSYNC_ENV=shyft
+# Explorer
+export DATABASE_HOST=127.0.0.1
+export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
+export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
+export DATABASE_USER=postgres
+export DATABASE_PASSWORD=notsecurepassword
 
 # Main
 
-setup: | download init
+setup: deps | download init
 
-setup-prover: | download init keys
+setup-prover: | setup keys
 
 up: explorer portal server
 
@@ -85,7 +99,6 @@ portal:
 	tmux kill-session -t po; \
 	tmux new -d -s po; \
 	tmux send-keys -t po "cd ${ZKSYNC_PORTAL_HOME}" Enter; \
-	tmux send-keys -t po "npm run generate:node:shyft" Enter;
 	tmux send-keys -t po "echo y | npx serve .output/public/ -p 3002" Enter;
 
 # Setup
@@ -115,29 +128,25 @@ download: download-core download-prover download-portal download-explorer
 init-explorer:
 	cd ${ZKSYNC_EXPLORER_HOME} && \
 	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
-	echo -ne '\n' | npm i && \
+	npm i && \
 	npm run db:create && \
 	npm run build
 
 init-portal:
-	git clone https://github.com/matter-labs/dapp-portal.git ${ZKSYNC_PORTAL_HOME} || exit 0
-	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT}
-	cp portal.diff ${ZKSYNC_PORTAL_HOME}
-	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0
+	cd ${ZKSYNC_PORTAL_HOME} && \
+	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
+	npm i && \
+	npm run generate:node:shyft
 
 init-core:
 	sudo chown -R admin:admin /home/admin/
 	cd ${ZKSYNC_CORE_HOME} && \
 	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
+	export PATH=${ZKSYNC_CORE_HOME}/bin:$(PATH) && \
+	export PATH=/snap/bin:$(PATH) && \
 	zk && zk clean --all && zk env ${ZKSYNC_ENV} && zk init --run-observability
 
 init: | init-core init-portal init-explorer
-
-init-hyperchain:
-	sudo chown -R admin:admin /home/admin/
-	cd ${ZKSYNC_CORE_HOME} && \
-	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
-	zk && zk clean --all && zk env ${ZKSYNC_ENV} && zk init hyper --bump-chain-id
 
 keys:
 	cp ${ZKSYNC_CORE_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml 

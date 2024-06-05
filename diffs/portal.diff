@@ -7,7 +7,7 @@ index 567368e..98dbdf9 100644
  };
  
 +export const shyftNode: ZkSyncNetwork = {
-+  id: 1000,
++  id: 270,
 +  key: "shyft",
 +  name: "shyft_network",
 +  rpcUrl: "https://rpc.sepolia.shyft.lambdaclass.com",

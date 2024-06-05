@@ -1,4 +1,4 @@
-.PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor
+.PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor explorer portal
 
 # Homes
 export ZKSYNC_CORE_HOME=$(shell pwd)/zksync-era-core

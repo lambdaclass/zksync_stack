@@ -1,7 +1,5 @@
 .PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor
 
-PROVER?=""
-
 export ZKSYNC_CORE_HOME=$(shell pwd)/zksync-era-core
 export ZKSYNC_PROVER_HOME=$(shell pwd)/zksync-era-prover
 export ZKSYNC_EXPLORER_HOME=$(shell pwd)/explorer
@@ -29,11 +27,8 @@ clean:
 	docker rm -f $(docker ps -qa) || exit 0
 
 prune:
-	rm -rf ${ZKSYNC_CORE_HOME} ${ZKSYNC_EXPLORER_HOME} ${ZKSYNC_PORTAL_HOME}
+	rm -rf ${ZKSYNC_CORE_HOME} ${ZKSYNC_EXPLORER_HOME} ${ZKSYNC_PORTAL_HOME} ${ZKSYNC_PROVER_HOME}
 	docker rm -f $(docker ps -qa) || exit 0
-	@if [ ${PROVER} = "gpu" ]; then \
-        rm -rf ${ZKSYNC_PROVER_HOME}; \
-    fi
 
 deps:
 	sudo apt install -y snapd

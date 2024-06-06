@@ -86,14 +86,14 @@ explorer:
 	tmux kill-session -t e; \
 	tmux new -d -s e; \
 	tmux send-keys -t e "cd ${ZKSYNC_EXPLORER_HOME}" Enter; \
-	tmux send-keys -t po "export ZKSYNC_HOME=${ZKSYNC_CORE_HOME}" Enter; \
-	tmux send-keys -t po "export DATABASE_HOST=127.0.0.1" Enter; \
-	tmux send-keys -t po "export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050" Enter; \
-	tmux send-keys -t po "export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer" Enter; \
-	tmux send-keys -t po "export DATABASE_USER=postgres" Enter; \
-	tmux send-keys -t po "npm i" Enter; \
-	tmux send-keys -t po "npm run db:create" Enter; \
-	tmux send-keys -t po "npm run build" Enter; \
+	tmux send-keys -t e "export ZKSYNC_HOME=${ZKSYNC_CORE_HOME}" Enter; \
+	tmux send-keys -t e "export DATABASE_HOST=127.0.0.1" Enter; \
+	tmux send-keys -t e "export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050" Enter; \
+	tmux send-keys -t e "export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer" Enter; \
+	tmux send-keys -t e "export DATABASE_USER=postgres" Enter; \
+	tmux send-keys -t e "npm i" Enter; \
+	tmux send-keys -t e "npm run db:create" Enter; \
+	tmux send-keys -t e "npm run build" Enter; \
 	tmux send-keys -t e "npm run dev" Enter;
 
 portal:
@@ -147,6 +147,6 @@ keys:
 	cd ${ZKSYNC_PROVER_HOME}/prover && \
 	export ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} && \
 	export PATH=${ZKSYNC_PROVER_HOME}/bin:$(PATH) && \
-	export FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data && \
+	export FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_CORE_HOME}/prover/vk_setup_data_generator_server_fri/data && \
 	zk && zk env ${ZKSYNC_ENV}  && zk f cargo run --features gpu --release --bin key_generator -- generate-sk-gpu all --recompute-if-missing
 	cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_CORE_HOME}/etc/env/target/

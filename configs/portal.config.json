@@ -4,7 +4,7 @@
         "id": 270,
         "key": "shyft",
         "name": "Shyft",
-        "rpcUrl": "https://rpc.sepolia.shyft.lambdaclass.com",
+        "rpcUrl": "",
         "l1Network": {
           "id": 11155111,
           "name": "Sepolia",

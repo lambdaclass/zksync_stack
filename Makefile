@@ -1,5 +1,7 @@
 .PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor explorer portal
 
+export PATH=$HOME/.local/bin:$$PATH
+
 # Homes
 ZKSYNC_SERVER_HOME=$(shell pwd)/zksync-era-server
 ZKSYNC_PROVER_HOME=$(shell pwd)/zksync-era-prover
@@ -26,9 +28,10 @@ ZKSYNC_ENV=shyft
 # General
 
 deps:
+	mkdir -p ~/.local/bin
 	sudo apt install -y moreutils wget tmux
-	wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
-	    chmod +x /usr/bin/yq
+	wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O ~/.local/bin/yq &&\
+	    chmod +x ~/.local/bin/yq
 
 # Download
 
@@ -92,9 +95,9 @@ run-portal: $(ZKSYNC_PORTAL_HOME)
 explorer:
 	tmux kill-session -t explorer || exit 0
 	tmux new -d -s explorer
-	tmux send-keys -t explorer "make setup-explorer run-explorer"
+	tmux send-keys -t explorer "make setup-explorer run-explorer" Enter
 
 portal: setup-portal
 	tmux kill-session -t portal || exit 0
 	tmux new -d -s portal
-	tmux send-keys -t portal "make setup-portal run-portal"
+	tmux send-keys -t portal "make setup-portal run-portal" Enter

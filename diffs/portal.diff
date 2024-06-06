@@ -13,14 +13,7 @@ index 567368e..98dbdf9 100644
 +  rpcUrl: "https://rpc.sepolia.shyft.lambdaclass.com",
 +  blockExplorerUrl: "https://explorer.sepolia.shyft.lambdaclass.com",
 +  blockExplorerApi: "https://api.sepolia.shyft.lambdaclass.com",
-+  l1Network: {
-+    id: 11155111,
-+    name: "Sepolia Ethereum Node",
-+    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-+    rpcUrls: {
-+      default: { http: ["http://eth-sepolia"] },
-+    },
-+  },
++  l1Network: l1Networks.sepolia, 
 +};
 +
  const publicChains: ZkSyncNetwork[] = [

@@ -1,8 +1,17 @@
 # zkSync Stack
 
-## Before running the stack
+## Before running the stack (configuration)
 
-Before running the stack, you need to update the exports in the Makefile and also, you need to complete the `shyft.toml` file which will be your L2 configuration file. The fields that you need to fill are related to private keys and addresses. For instance, you should have a minimum of two funded L1 accounts; one for the operator commit, and one for the operator blobs (then you can have a third one corresponding to the fee account, but it could be the same as the operator commit).
+Before running the stack we need to set up the configuration files. These can be found in the `configs` directory. The configuration files are:
+
+- `shyft.toml`: This file contains the configuration for the L2 node. It includes the private keys and addresses for the operator, the fee account, and the prover. It also includes the configuration for the L1 node (specifically, the network name), the prover, and the state keeper.
+- `explorer.config.json`: This file contains the configuration for the block explorer. It includes the configuration for both the testnet and mainnet networks.
+- `portal.config.json`: This file contains the configuration for the portal.
+
+Finally, this is not a configuration file but it is something that we must set up before running the stack. The `Makefile` exports some private keys needed for the stack initialization. These keys are:
+- `DEPLOYER_PRIVATE_KEY`: The private key of the deployer account.
+- `GOVERNANCE_PRIVATE_KEY`: The private key of the governance account.
+- `GOVERNOR_PRIVATE_KEY`: The private key of the governor account.
 
 > **Note:** The `ZKSYNC_ENV` must match the .toml file name. E.g. if your config file is `shyft.toml` then `ZKSYNC_ENV` should be `shyft`.
 

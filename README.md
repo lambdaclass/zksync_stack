@@ -54,7 +54,6 @@ make up-prover
 ```
 
 > `setup-prover` does the same as `setup`, but it also downloads the repositories needed to run the stack with a GPU prover, and it generates the universal setup keys.
->
 > `up-prover` works the same as `up`, but it also starts the prover components.
 
 ## Local Nodes

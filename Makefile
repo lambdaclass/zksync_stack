@@ -101,6 +101,7 @@ portal:
 	tmux kill-session -t po; \
 	tmux new -d -s po; \
 	tmux send-keys -t po "cd ${ZKSYNC_PORTAL_HOME}" Enter; \
+	tmux send-keys -t po "npm i" Enter;
 	tmux send-keys -t po "npm run generate:node:shyft" Enter;
 	tmux send-keys -t po "echo y | npx serve .output/public/ -p 3002" Enter;
 

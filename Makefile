@@ -8,19 +8,13 @@ export ZKSYNC_PORTAL_HOME=$(shell pwd)/portal
 # Commits
 export CORE_COMMIT=core-v24.7.0
 export PROVER_COMMIT=prover-v14.5.0
-export ZKSYNC_PORTAL_COMMIT=8471411eebcae55dba940bee492ba6cb74a167d3
+export PORTAL_COMMIT=8471411eebcae55dba940bee492ba6cb74a167d3
 # Private keys
 export DEPLOYER_PRIVATE_KEY=
 export GOVERNANCE_PRIVATE_KEY=
 export GOVERNOR_PRIVATE_KEY=
 # Envs
 export ZKSYNC_ENV=shyft
-# Explorer
-export DATABASE_HOST=127.0.0.1
-export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
-export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
-export DATABASE_USER=postgres
-export DATABASE_PASSWORD=notsecurepassword
 
 # Main
 
@@ -30,7 +24,7 @@ setup-prover: | setup keys
 
 up: explorer portal server
 
-up-prover: explorer portal | server prover-gateway witness-generators witness-vector-generator prover compressor
+up-prover: | server prover-gateway witness-generators witness-vector-generator prover compressor explorer portal
 
 down:
 	tmux kill-server
@@ -38,11 +32,11 @@ down:
 
 clean:
 	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && ${ZKSYNC_CORE_HOME}/bin/zk clean --all
-	docker rm -f $(docker ps -qa) || exit 0
+	docker rm -f $(shell docker ps -qa)
 
 prune:
 	rm -rf ${ZKSYNC_CORE_HOME} ${ZKSYNC_EXPLORER_HOME} ${ZKSYNC_PORTAL_HOME} ${ZKSYNC_PROVER_HOME}
-	docker rm -f $(docker ps -qa) || exit 0
+	docker rm -f $(shell docker ps -qa)
 
 deps:
 	sudo apt install -y snapd
@@ -91,25 +85,36 @@ compressor:
 explorer:
 	tmux kill-session -t e; \
 	tmux new -d -s e; \
-	tmux send-keys -t e "cd ${ZKSYNC_PROVER_HOME}/prover && export ZKSYNC_HOME=${ZKSYNC_PROVER_HOME}" Enter; \
 	tmux send-keys -t e "cd ${ZKSYNC_EXPLORER_HOME}" Enter; \
-	tmux send-keys -t e "npm run start" Enter;
+	tmux send-keys -t po "export ZKSYNC_HOME=${ZKSYNC_CORE_HOME}" Enter; \
+	tmux send-keys -t po "export DATABASE_HOST=127.0.0.1" Enter; \
+	tmux send-keys -t po "export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050" Enter; \
+	tmux send-keys -t po "export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer" Enter; \
+	tmux send-keys -t po "export DATABASE_USER=postgres" Enter; \
+	tmux send-keys -t po "npm i" Enter; \
+	tmux send-keys -t po "npm run db:create" Enter; \
+	tmux send-keys -t po "npm run build" Enter; \
+	tmux send-keys -t e "npm run dev" Enter;
 
 portal:
 	tmux kill-session -t po; \
 	tmux new -d -s po; \
 	tmux send-keys -t po "cd ${ZKSYNC_PORTAL_HOME}" Enter; \
+	tmux send-keys -t po "npm run generate:node:shyft" Enter;
 	tmux send-keys -t po "echo y | npx serve .output/public/ -p 3002" Enter;
 
 # Setup
 
 download-portal:
-	git clone https://github.com/matter-labs/dapp-portal.git ${ZKSYNC_PORTAL_HOME} || exit 0
+	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT} && git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT} --ff-only || git clone https://github.com/matter-labs/dapp-portal.git ${ZKSYNC_PORTAL_HOME}
+	git -C ${ZKSYNC_PORTAL_HOME} checkout  ${PORTAL_COMMIT}
+	cp configs/portal.config.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
 	cp diffs/portal.diff ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0
 
 download-explorer:
-	git clone https://github.com/matter-labs/block-explorer.git ${ZKSYNC_EXPLORER_HOME} || exit 0
+	git -C ${ZKSYNC_EXPLORER_HOME} pull origin main --ff-only || git clone https://github.com/matter-labs/block-explorer.git ${ZKSYNC_EXPLORER_HOME}
+	cp configs/explorer.config.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0
 
@@ -125,28 +130,12 @@ download-prover:
 
 download: download-core download-prover download-portal download-explorer
 
-init-explorer:
-	cd ${ZKSYNC_EXPLORER_HOME} && \
-	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
-	npm i && \
-	npm run db:create && \
-	npm run build
-
-init-portal:
-	cd ${ZKSYNC_PORTAL_HOME} && \
-	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
-	npm i && \
-	npm run generate:node:shyft
-
-init-core:
+init:
 	sudo chown -R admin:admin /home/admin/
 	cd ${ZKSYNC_CORE_HOME} && \
 	export ZKSYNC_HOME=${ZKSYNC_CORE_HOME} && \
-	export PATH=${ZKSYNC_CORE_HOME}/bin:$(PATH) && \
-	export PATH=/snap/bin:$(PATH) && \
+	export PATH=${ZKSYNC_CORE_HOME}/bin:/snap/bin:$(PATH) && \
 	zk && zk clean --all && zk env ${ZKSYNC_ENV} && zk init --run-observability
-
-init: | init-core init-portal init-explorer
 
 keys:
 	cp ${ZKSYNC_CORE_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml 

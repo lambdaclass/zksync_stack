@@ -91,6 +91,7 @@ explorer:
 	tmux send-keys -t e "export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050" Enter; \
 	tmux send-keys -t e "export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer" Enter; \
 	tmux send-keys -t e "export DATABASE_USER=postgres" Enter; \
+	tmux send-keys -t e "export DATABASE_PASSWORD=notsecurepassword" Enter; \
 	tmux send-keys -t e "npm i" Enter; \
 	tmux send-keys -t e "npm run db:create" Enter; \
 	tmux send-keys -t e "npm run build" Enter; \

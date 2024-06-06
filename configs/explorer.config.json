@@ -1,0 +1,37 @@
+{
+    "networks": [
+      {
+        "apiUrl": "https://dev.api.sepolia.shyft.lambdaclass.com",
+        "verificationApiUrl": "",
+        "bridgeUrl": "https://dev.portal.sepolia.shyft.lambdaclass.com/bridge",
+        "hostnames": [
+          "https://dev.explorer.sepolia.shyft.lambdaclass.com"
+        ],
+        "icon": "/images/icons/zksync-arrows.svg",
+        "l1ExplorerUrl": "https://sepolia.etherscan.io",
+        "l2ChainId": 270,
+        "l2NetworkName": "zkSync Era Shyft Sepolia Testnet",
+        "maintenance": false,
+        "name": "shyft-sepolia",
+        "published": true,
+        "rpcUrl": "https://dev.rpc.sepolia.shyft.lambdaclass.com"
+      },
+      {
+        "apiUrl": "https://api.sepolia.shyft.lambdaclass.com",
+        "verificationApiUrl": "",
+        "bridgeUrl": "https://portal.sepolia.shyft.lambdaclass.com/bridge",
+        "hostnames": [
+          "https://explorer.sepolia.shyft.lambdaclass.com"
+        ],
+        "icon": "/images/icons/zksync-arrows.svg",
+        "l1ExplorerUrl": "https://sepolia.etherscan.io",
+        "l2ChainId": 270,
+        "l2NetworkName": "zkSync Era Shyft Sepolia Prover Testnet",
+        "maintenance": false,
+        "name": "shyft-prover-sepolia",
+        "published": true,
+        "rpcUrl": "https://rpc.sepolia.shyft.lambdaclass.com"
+      }
+    ]
+  }
+  

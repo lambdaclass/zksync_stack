@@ -77,7 +77,7 @@ setup-explorer: download-explorer
 
 ## Portal
 
-setup-portal:
+setup-portal: download-portal
 	cd $(ZKSYNC_PORTAL_HOME) ; \
 		npm install && \
 		npm run generate:node:shyft
@@ -97,7 +97,7 @@ explorer:
 	tmux new -d -s explorer
 	tmux send-keys -t explorer "make setup-explorer run-explorer" Enter
 
-portal: setup-portal
+portal:
 	tmux kill-session -t portal || exit 0
 	tmux new -d -s portal
 	tmux send-keys -t portal "make setup-portal run-portal" Enter

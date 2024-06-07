@@ -1,0 +1,12 @@
+services:
+  load_testerl2:
+    build:
+      context: ./
+      dockerfile: ./docker/tester.dockerfile
+    env_file: ./.envrc
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - L1_RPC_URL=http://host.docker.internal:8545
+      - L2_RPC_URL=http://host.docker.internal:3050
+    restart: unless-stopped

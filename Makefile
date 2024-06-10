@@ -8,7 +8,7 @@ export ZKSYNC_PORTAL_HOME=$(shell pwd)/portal
 # Commits
 export CORE_COMMIT=core-v24.7.0
 export PROVER_COMMIT=prover-v14.5.0
-export PORTAL_COMMIT=8471411eebcae55dba940bee492ba6cb74a167d3
+export PORTAL_COMMIT=35b9f7cd21765224f503b9a2a5e3d432c39db6dd
 # Private keys
 export DEPLOYER_PRIVATE_KEY=
 export GOVERNANCE_PRIVATE_KEY=

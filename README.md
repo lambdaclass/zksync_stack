@@ -27,7 +27,7 @@ make setup
 
 This command only installs the dependencies required for running the observability tools over the stack (Prometheus, Grafana). In the future, we'll add the installation for the dependencies needed to run this from a fresh new machine.
 
-This command will download all the repositories needed to run the stack with a GPU prover in addition to the explorer and the portal.
+This command will download all the repositories needed to run the stack without a GPU prover in addition to the explorer and the portal.
 
 After the setup is complete, you can start the stack by running the following command:
 

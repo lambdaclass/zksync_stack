@@ -17,7 +17,7 @@ Finally, this is not a configuration file but it is something that we must set u
 
 ## Running the stack
 
-**The following instructions are meant for running the stack without a prover, if you want to run the stuck with a GPU prover skip go to the next section**
+**The following instructions are meant for running the stack without a prover, if you want to run the stack with a GPU prover go to the next section**
 
 To get started, we need to install all the essential dependencies. You can achieve this by running the following command:
 
@@ -27,7 +27,7 @@ make setup
 
 This command only installs the dependencies required for running the observability tools over the stack (Prometheus, Grafana). In the future, we'll add the installation for the dependencies needed to run this from a fresh new machine.
 
-This command will download all the repositories needed to run the stack with a GPU prover in addition to the explorer and the portal.
+This command will download all the repositories needed to run the stack without a GPU prover in addition to the explorer and the portal.
 
 After the setup is complete, you can start the stack by running the following command:
 
@@ -54,7 +54,6 @@ make up-prover
 ```
 
 > `setup-prover` does the same as `setup`, but it also downloads the repositories needed to run the stack with a GPU prover, and it generates the universal setup keys.
->
 > `up-prover` works the same as `up`, but it also starts the prover components.
 
 ## Local Nodes

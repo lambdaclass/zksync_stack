@@ -17,7 +17,7 @@ Finally, this is not a configuration file but it is something that we must set u
 
 ## Running the stack
 
-**The following instructions are meant for running the stack without a prover, if you want to run the stuck with a GPU prover skip go to the next section**
+**The following instructions are meant for running the stack without a prover, if you want to run the stack with a GPU prover go to the next section**
 
 To get started, we need to install all the essential dependencies. You can achieve this by running the following command:
 

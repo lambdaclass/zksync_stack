@@ -1,7 +1,5 @@
 .PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor explorer portal
 
-export PATH=$HOME/.local/bin:$$PATH
-
 # Homes
 ZKSYNC_SERVER_HOME=$(shell pwd)/zksync-era-server
 ZKSYNC_PROVER_HOME=$(shell pwd)/zksync-era-prover
@@ -28,29 +26,28 @@ ZKSYNC_ENV=shyft
 # General
 
 deps:
-	mkdir -p ~/.local/bin
 	sudo apt install -y moreutils wget tmux
-	wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O ~/.local/bin/yq &&\
-	    chmod +x ~/.local/bin/yq
+	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+	sudo chmod +x /usr/bin/yq
 
 # Download
 
 download-server: deps
-	git -C ${ZKSYNC_SERVER_HOME} pull origin ${SERVER_COMMIT}:${SERVER_COMMIT} --ff-only || git clone ${SERVER_REPO} ${ZKSYNC_SERVER_HOME}
+	git -C ${ZKSYNC_SERVER_HOME} pull origin ${SERVER_COMMIT}:${SERVER_COMMIT} --ff-only 2>/dev/null || git clone ${SERVER_REPO} ${ZKSYNC_SERVER_HOME}
 	git -C ${ZKSYNC_SERVER_HOME} checkout ${SERVER_COMMIT}
 	cp diffs/observability.diff ${ZKSYNC_SERVER_HOME}
 	cp ${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/
 	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
 
 download-explorer: deps
-	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
+	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} checkout ${EXPLORER_COMMIT}
 	cp configs/explorer.config.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0	
 
 download-portal: deps
-	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
+	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT}
 	cp configs/portal.config.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
 	cp diffs/portal.diff ${ZKSYNC_PORTAL_HOME}
@@ -60,11 +57,19 @@ download-portal: deps
 
 ## Server
 
+setup-server: export ZKSYNC_HOME=${ZKSYNC_SERVER_HOME}
 setup-server: download-server
+	sudo chown -R $(USER):$(USER) $(ZKSYNC_SERVER_HOME)
+	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
+		cd $(ZKSYNC_SERVER_HOME) && \
+		./bin/zk && \
+		./bin/zk clean --all && \
+		./bin/zk env $(ZKSYNC_ENV) && \
+		./bin/zk init --run-observability
 
 ## Explorer
 
-setup-explorer: ZKSYNC_HOME=$(ZKSYNC_CORE_HOME)
+setup-explorer: ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
 setup-explorer: DATABASE_HOST=127.0.0.1
 setup-explorer: DATABASE_USER=postgres
 setup-explorer: DATABASE_PASSWORD=notsecurepassword
@@ -80,9 +85,14 @@ setup-explorer: download-explorer
 setup-portal: download-portal
 	cd $(ZKSYNC_PORTAL_HOME) ; \
 		npm install && \
-		npm run generate:node:shyft
+		npm run generate:node:hyperchain
 
 # Run
+
+run-server: $(ZKSYNC_SERVER_HOME)
+	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
+		cd $(ZKSYNC_SERVER_HOME) && \
+		zk server --components=api,eth,tree,state_keeper,housekeeper,commitment_generator,proof_data_handler
 
 run-explorer: $(ZKSYNC_EXPLORER_HOME)
 	cd $(ZKSYNC_EXPLORER_HOME) ; npm run dev
@@ -92,12 +102,17 @@ run-portal: $(ZKSYNC_PORTAL_HOME)
 
 # Main
 
+server:
+	tmux kill-session -t server 2>/dev/null || exit 0
+	tmux new -d -s server
+	tmux send-keys -t server "make setup-server run-server" Enter
+
 explorer:
-	tmux kill-session -t explorer || exit 0
+	tmux kill-session -t explorer 2>/dev/null || exit 0
 	tmux new -d -s explorer
 	tmux send-keys -t explorer "make setup-explorer run-explorer" Enter
 
 portal:
-	tmux kill-session -t portal || exit 0
+	tmux kill-session -t portal 2>/dev/null || exit 0
 	tmux new -d -s portal
 	tmux send-keys -t portal "make setup-portal run-portal" Enter

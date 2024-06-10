@@ -1,0 +1,42 @@
+[
+    {
+      "network": {
+        "id": 270,
+        "key": "shyft",
+        "name": "Shyft",
+        "rpcUrl": "",
+        "l1Network": {
+          "id": 11155111,
+          "name": "Sepolia",
+          "nativeCurrency": {
+            "name": "Ether",
+            "symbol": "ETH",
+            "decimals": 18
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://eth-sepolia"
+              ]
+            },
+            "public": {
+              "http": [
+                "http://eth-sepolia"
+              ]
+            }
+          }
+        }
+      },
+      "tokens": [
+        {
+          "address": "0x000000000000000000000000000000000000800A",
+          "l1Address": "0x0000000000000000000000000000000000000000",
+          "symbol": "ETH",
+          "name": "Ether",
+          "decimals": 18,
+          "iconUrl": "/img/eth.svg"
+        }
+      ]
+    }
+  ]
+  

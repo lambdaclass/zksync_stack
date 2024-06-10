@@ -1,0 +1,25 @@
+diff --git a/scripts/setup-hyperchain-config.ts b/scripts/setup-hyperchain-config.ts
+index 56652b485..ebfbc2b68 100644
+--- a/scripts/setup-hyperchain-config.ts
++++ b/scripts/setup-hyperchain-config.ts
+@@ -6,7 +6,7 @@ import { parse as parseConnectionString } from "pg-connection-string";
+
+ const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
+   networks: [{
+-    apiUrl: "http://localhost:3020",
++    apiUrl: process.env.API_URL || "http://localhost:3020",
+     verificationApiUrl: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
+     hostnames: ["localhost"],
+     icon: "/images/icons/zksync-arrows.svg",
+diff --git a/packages/app/vite.config.ts b/packages/app/vite.config.ts
+index c0b4aea25..1b5f02528 100644
+--- a/packages/app/vite.config.ts
++++ b/packages/app/vite.config.ts
+@@ -6,6 +6,7 @@ import { fileURLToPath, URL } from "url";
+ // https://vitejs.dev/config/
+ export default defineConfig({
+   server: {
++    host: '0.0.0.0',
+     port: 3010,
+   },
+   build: {

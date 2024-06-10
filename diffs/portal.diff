@@ -1,0 +1,66 @@
+diff --git a/data/networks.ts b/data/networks.ts
+index 567368e..98dbdf9 100644
+--- a/data/networks.ts
++++ b/data/networks.ts
+@@ -64,7 +64,25 @@ export const dockerizedNode: ZkSyncNetwork = {
+   },
+ };
+ 
++export const shyftNode: ZkSyncNetwork = {
++  id: 270,
++  key: "shyft",
++  name: "shyft_network",
++  rpcUrl: "https://rpc.sepolia.shyft.lambdaclass.com",
++  blockExplorerUrl: "https://explorer.sepolia.shyft.lambdaclass.com",
++  blockExplorerApi: "https://api.sepolia.shyft.lambdaclass.com",
++  l1Network: l1Networks.sepolia, 
++};
++
+ const publicChains: ZkSyncNetwork[] = [
++  shyftNode,
+   {
+     id: 324,
+     key: "mainnet",
+@@ -104,6 +122,8 @@ const publicChains: ZkSyncNetwork[] = [
+ const nodeType = portalRuntimeConfig.nodeType;
+ const determineChainList = (): ZkSyncNetwork[] => {
+   switch (nodeType) {
++    case "shyft":
++      return [shyftNode];
+     case "memory":
+       return [inMemoryNode];
+     case "dockerized":
+diff --git a/package.json b/package.json
+index bdad0dd..41d5a4d 100644
+--- a/package.json
++++ b/package.json
+@@ -5,12 +5,14 @@
+   "scripts": {
+     "dev": "nuxt dev",
+     "dev:node:memory": "cross-env NODE_TYPE=memory npm run dev",
+-    "dev:node:docker": "cross-env NODE_TYPE=dockerized npm run dev",
+-    "dev:node:hyperchain": "ts-node --transpile-only scripts/hyperchains/empty-check.ts && cross-env NODE_TYPE=hyperchain npm run dev",
++    "dev:node:docker": "cross-env NODE_TYPE=dockerized npm run dev -- --port 3002",
++    "dev:node:hyperchain": "ts-node --transpile-only scripts/hyperchains/empty-check.ts && cross-env NODE_TYPE=hyperchain npm run dev -- --port 3002 --host",
++    "dev:node:shyft": "ts-node --transpile-only scripts/hyperchains/empty-check.ts && cross-env NODE_TYPE=shyft npm run dev -- --port 3002 --host",
+     "generate": "nuxt generate && npm run generate-meta",
+     "generate:node:memory": "cross-env NODE_TYPE=memory npm run generate",
+     "generate:node:docker": "cross-env NODE_TYPE=dockerized npm run generate",
+     "generate:node:hyperchain": "ts-node --transpile-only scripts/hyperchains/empty-check.ts && cross-env NODE_TYPE=hyperchain npm run generate",
++    "generate:node:shyft": "ts-node --transpile-only scripts/hyperchains/empty-check.ts && cross-env NODE_TYPE=shyft npm run generate",
+     "generate-meta": "ts-node --transpile-only scripts/updateBridgeMetaTags.ts",
+     "hyperchain:create": "ts-node --transpile-only scripts/hyperchains/create.ts",
+     "hyperchain:configure": "ts-node --transpile-only scripts/hyperchains/configure.ts",
+diff --git a/scripts/hyperchains/configure.ts b/scripts/hyperchains/configure.ts
+index 850d24c..dc3a52e 100644
+--- a/scripts/hyperchains/configure.ts
++++ b/scripts/hyperchains/configure.ts
+@@ -19,7 +19,7 @@ if (!rootPath) {
+   process.exit(1);
+ }
+ 
+-const envsDirectory = pathJoin(rootPath, "/etc/env");
++const envsDirectory = pathJoin(rootPath, "/etc/env/target");
+ const tokensDirectory = pathJoin(rootPath, "/etc/tokens");
+ 
+ const configureHyperchainInfo = async () => {

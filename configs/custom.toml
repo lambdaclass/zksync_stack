@@ -1,0 +1,32 @@
+__imports__ = [ "base", "l1-inits/.init.env", "l2-inits/shyft.init.env" ]
+
+ETH_SENDER_SENDER_PUBDATA_SENDING_MODE = "Blobs"
+
+[chain.eth]
+network = "sepolia"
+
+[chain.state_keeper]
+fee_account_addr = "0xaD5b0A89b7FA5e1F0E834D8F8AC147959588321c"
+
+[eth_client]
+web3_url = "http://eth-sepolia"
+
+[eth_sender.sender]
+operator_private_key = "0x85ce63bf2d019f48c6f9bf2835e41bb5ee2569871fbec3b151c434f26f9ce70e"
+operator_commit_eth_addr = "0xaD5b0A89b7FA5e1F0E834D8F8AC147959588321c"
+
+operator_blobs_private_key = "0xac175f0c3965146b96773aab2759a605eebf4325fd25fe2c2170c236acb4e215"
+operator_blobs_eth_addr = "0xE05B58b28B5879eFe850382c4755ebd5a5589DC3"
+
+[misc]
+fee_account_private_key = "0x85ce63bf2d019f48c6f9bf2835e41bb5ee2569871fbec3b151c434f26f9ce70e"
+
+[contracts]
+BASE_TOKEN_ADDR = "0x0000000000000000000000000000000000000001"
+
+GENESIS_PROTOCOL_SEMANTIC_VERSION = "0.24.1"
+
+FRI_RECURSION_LEAF_LEVEL_VK_HASH = "0xf9664f4324c1400fa5c3822d667f30e873f53f1b8033180cd15fe41c1e2355c6"
+FRI_RECURSION_NODE_LEVEL_VK_HASH = "0xf520cd5b37e74e19fdb369c8d676a04dce8a19457497ac6686d2bb95d94109c8"
+FRI_RECURSION_SCHEDULER_LEVEL_VK_HASH = "0xe6ba9d6b042440c480fa1c7182be32387db6e90281e82f37398d3f98f63f098a"
+SNARK_WRAPPER_VK_HASH = "0x14f97b81e54b35fe673d8708cc1a19e1ea5b5e348e12d31e39824ed4f42bbca2"

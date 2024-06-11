@@ -36,7 +36,7 @@ download-server: deps
 	git -C ${ZKSYNC_SERVER_HOME} pull origin ${SERVER_COMMIT}:${SERVER_COMMIT} --ff-only 2>/dev/null || git clone ${SERVER_REPO} ${ZKSYNC_SERVER_HOME}
 	git -C ${ZKSYNC_SERVER_HOME} checkout ${SERVER_COMMIT}
 	cp diffs/observability.diff ${ZKSYNC_SERVER_HOME}
-	cp ${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/
+	cp configs/network.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
 
 download-explorer: deps
@@ -52,6 +52,11 @@ download-portal: deps
 	cp configs/portal.config.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
 	cp diffs/portal.diff ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0
+
+download-prover: deps
+	git -C ${ZKSYNC_PROVER_HOME} pull origin ${PROVER_COMMIT}:${PROVER_COMMIT} --ff-only 2>/dev/null || git clone ${PROVER_REPO} ${ZKSYNC_PROVER_HOME}
+	git -C ${ZKSYNC_PROVER_HOME} checkout ${PROVER_COMMIT}
+	cp configs/network.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 
 # Setup
 
@@ -87,6 +92,24 @@ setup-portal: download-portal
 		npm install && \
 		npm run generate:node:hyperchain
 
+## Prover
+
+setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_CORE_HOME}/prover/vk_setup_data_generator_server_fri/data
+setup-prover: download-prover
+	cp ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
+	cp -r ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/l2-inits ${ZKSYNC_PROVER_HOME}/etc/env
+	sed -i'' -e 's/^proof_sending_mode =.*/proof_sending_mode = "OnlyRealProofs"/' ${ZKSYNC_PROVER_HOME}/etc/env/base/eth_sender.toml
+	sed -i'' -e 's;^setup_data_path =.*;setup_data_path = "vk_setup_data_generator_server_fri/data/";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_prover.toml
+	sed -i'' -e 's;^universal_setup_path =.*;universal_setup_path = "../keys/setup/setup_2^26.kiey";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_proof_compressor.toml
+	rm -f ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env
+	cd ${ZKSYNC_PROVER_HOME}/prover && \
+		export ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} && \
+		export PATH=${ZKSYNC_PROVER_HOME}/bin:$(PATH) && \
+		zk && \
+		zk env ${ZKSYNC_ENV} && \
+		zk f cargo run --features gpu --release --bin key_generator --generate-sk-gpu all --recompute-if-missing
+		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_CORE_HOME}/etc/env/target/
+
 # Run
 
 run-server: $(ZKSYNC_SERVER_HOME)
@@ -99,6 +122,48 @@ run-explorer: $(ZKSYNC_EXPLORER_HOME)
 
 run-portal: $(ZKSYNC_PORTAL_HOME)
 	cd $(ZKSYNC_PORTAL_HOME) ; npx serve .output/public -p 3002
+
+## Prover
+
+run-prover-gateway: $(ZKSYNC_PROVER_HOME)
+	cd $(ZKSYNC_PROVER_HOME) && \
+		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
+		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
+		zk f cargo run --release --bin zksync_prover_fri_gateway
+
+run-prover-witness-generators: $(ZKSYNC_PROVER_HOME)
+	cd $(ZKSYNC_PROVER_HOME) && \
+		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
+		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
+		API_PROMETHEUS_LISTENER_PORT=3116
+		zk f cargo run --release --bin zksync_witness_generator -- --all-rounds
+
+run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
+	cd $(ZKSYNC_PROVER_HOME) && \
+		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
+		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
+		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
+		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
+
+run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
+	cd $(ZKSYNC_PROVER_HOME) && \
+		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
+		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
+		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
+		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
+
+run-prover-prover: $(ZKSYNC_PROVER_HOME)
+	cd $(ZKSYNC_PROVER_HOME) && \
+		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
+		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
+		FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
+		cargo run --features "gpu" --release --bin zksync_prover_fri
+
+run-prover-compressor: $(ZKSYNC_PROVER_HOME)
+	cd $(ZKSYNC_PROVER_HOME) && \
+		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
+		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
+		zk f cargo run --release --bin zksync_proof_fri_compressor
 
 # Main
 
@@ -116,3 +181,30 @@ portal:
 	tmux kill-session -t portal 2>/dev/null || exit 0
 	tmux new -d -s portal
 	tmux send-keys -t portal "make setup-portal run-portal" Enter
+
+## Prover
+
+prover-gateway:
+	tmux kill-session -t pg 2>/dev/null || exit 0
+	tmux new -d -s pg
+	tmux send-keys -t pg "make setup-prover run-prover-gateway" Enter
+
+prover-witness-generator:
+	tmux kill-session -t pwg 2>/dev/null || exit 0
+	tmux new -d -s pwg
+	tmux send-keys -t pwg "make setup-prover run-prover-witness-generator" Enter
+
+prover-witness-vector-gen:
+	tmux kill-session -t pwv 2>/dev/null || exit 0
+	tmux new -d -s pwv
+	tmux send-keys -t pwv "make setup-prover run-prover-witness-vector-gen" Enter
+
+prover-prover:
+	tmux kill-session -t pp 2>/dev/null || exit 0
+	tmux new -d -s pp
+	tmux send-keys -t pp "make setup-prover run-prover-prover" Enter
+
+prover-compressor:
+	tmux kill-session -t pc 2>/dev/null || exit 0
+	tmux new -d -s pc
+	tmux send-keys -t pc "make setup-prover run-prover-compressor" Enter

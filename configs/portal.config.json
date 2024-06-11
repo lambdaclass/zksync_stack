@@ -5,7 +5,7 @@
       "key": "shyft",
       "name": "Shyft",
       "rpcUrl": "",
-      "blockExplorerUrl": "",
+      "blockExplorerApi": "",
       "l1Network": {
         "id": 11155111,
         "name": "Sepolia",

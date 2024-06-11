@@ -30,6 +30,19 @@ deps:
 	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
 	sudo chmod +x /usr/bin/yq
 
+down:
+	tmux kill-server
+	rm -rf /tmp/tmux*
+
+clean:
+	ZKSYNC_HOME=${ZKSYNC_SERVER_HOME} zk clean --all
+	ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} zk clean --all
+	docker rm -f $(shell docker ps -qa)
+
+prune: down
+	rm -rf ${ZKSYNC_SERVER_HOME} ${ZKSYNC_PROVER_HOME} ${ZKSYNC_PORTAL_HOME} ${ZKSYNC_EXPLORER_HOME}
+	docker rm -f $(shell docker ps -qa)
+
 # Download
 
 download-server: deps

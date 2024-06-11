@@ -145,13 +145,6 @@ run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
 		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
 		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
 
-run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
-		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
-		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
-		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
-
 run-prover-prover: $(ZKSYNC_PROVER_HOME)
 	cd $(ZKSYNC_PROVER_HOME) && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
@@ -164,6 +157,8 @@ run-prover-compressor: $(ZKSYNC_PROVER_HOME)
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		zk f cargo run --release --bin zksync_proof_fri_compressor
+
+run-prover-all: $(ZKSYNC_PROVER_HOME) run-prover-gateway run-prover-witness-generators run-prover-witness-vector-gen run-prover-prover run-prover-compressor
 
 # Main
 
@@ -208,3 +203,5 @@ prover-compressor:
 	tmux kill-session -t pc 2>/dev/null || exit 0
 	tmux new -d -s pc
 	tmux send-keys -t pc "make setup-prover run-prover-compressor" Enter
+
+prover-all: prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor

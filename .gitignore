@@ -2,3 +2,6 @@ portal/
 explorer/
 zksync-era-core/
 zksync-era-prover/
+
+config.json
+custom_configs/

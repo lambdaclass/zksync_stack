@@ -132,10 +132,6 @@ setup-prover: download-prover
 
 # Run
 
-run-all-no-prover: run-server run-explorer run-portal
-
-run-all: run-all-no-prover run-prover-all
-
 run-server: ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
 run-server: $(ZKSYNC_SERVER_HOME)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
@@ -187,8 +183,6 @@ run-prover-compressor: $(ZKSYNC_PROVER_HOME)
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		zk f cargo run --release --bin zksync_proof_fri_compressor
-
-run-prover-all: $(ZKSYNC_PROVER_HOME) run-prover-gateway run-prover-witness-generators run-prover-witness-vector-gen run-prover-prover run-prover-compressor
 
 # Main
 

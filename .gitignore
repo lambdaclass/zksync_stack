@@ -1,5 +1,4 @@
-.env
-portal/
-explorer/
-zksync-era-server/
-zksync-era-prover/
+/portal/
+/explorer/
+/zksync-era-core/
+/zksync-era-prover/

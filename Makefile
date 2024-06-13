@@ -56,14 +56,16 @@ download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} checkout ${EXPLORER_COMMIT}
 	cp configs/explorer.config.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
-	cp diffs/explorer.diff ${ZKSYNC_EXPLORER_HOME}
+	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
+	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0	
 
 download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT}
 	cp configs/portal.config.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
-	cp diffs/portal.diff ${ZKSYNC_PORTAL_HOME}
+	cp diffs/portal/portal.diff ${ZKSYNC_PORTAL_HOME}
+	cp -r diffs/portal/maintenance ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0
 
 download-prover: deps

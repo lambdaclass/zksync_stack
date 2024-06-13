@@ -15,6 +15,10 @@ Finally, this is not a configuration file but it is something that we must set u
 
 ## Running the stack
 
+You can launch every service of the stack with the Makefile. The basic structure is something as follows, but we give more detailed information below:
+
+![image](https://github.com/lambdaclass/zksync_stack/assets/30054528/2bcd8926-5719-4e46-983d-a6e135e7305b)
+
 **The following instructions are meant for running the stack without a prover, if you want to run the stack with a GPU prover go to the next section**
 
 To get started, we need to setup all the projects we'll be using. This can be done by running the following command:

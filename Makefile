@@ -31,17 +31,17 @@ deps:
 	sudo chmod +x /usr/bin/yq
 
 down:
-	tmux kill-server
+	tmux kill-server || exit 0
 	rm -rf /tmp/tmux*
 
 clean:
 	ZKSYNC_HOME=${ZKSYNC_SERVER_HOME} zk clean --all
 	ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} zk clean --all
-	docker rm -f $(shell docker ps -qa)
+	docker rm -f $(shell docker ps -qa) 2>/dev/null || exit 0
 
 prune: down
 	rm -rf ${ZKSYNC_SERVER_HOME} ${ZKSYNC_PROVER_HOME} ${ZKSYNC_PORTAL_HOME} ${ZKSYNC_EXPLORER_HOME}
-	docker rm -f $(shell docker ps -qa)
+	docker rm -f $(shell docker ps -qa) 2>/dev/null || exit 0
 
 # Download
 

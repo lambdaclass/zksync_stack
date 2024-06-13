@@ -1,4 +1,4 @@
-.PHONY: setup download setup-keys run-gpu server prover-gateway witness-generators witness-vector-generator prover compressor explorer portal
+.PHONY: deps down clean prune download-server download-explorer download-portal download-prover setup-all setup-all-no-prover setup-server setup-explorer setup-portal setup-prover run-server run-explorer run-portal run-prover-gateway run-prover-witness-generator run-prover-witness-vector-gen run-prover-prover run-prover-compressor run-prover-all up-no-prover up server explorer portal prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor prover-all
 
 # Homes
 ZKSYNC_SERVER_HOME=$(shell pwd)/zksync-era-server

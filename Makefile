@@ -73,6 +73,10 @@ download-prover: deps
 
 # Setup
 
+setup-all-no-prover: setup-server setup-explorer setup-portal
+
+setup-all: setup-all-no-prover setup-prover
+
 ## Server
 
 setup-server: export ZKSYNC_HOME=${ZKSYNC_SERVER_HOME}
@@ -125,6 +129,10 @@ setup-prover: download-prover
 
 # Run
 
+run-all-no-prover: run-server run-explorer run-portal
+
+run-all: run-all-no-prover run-prover-all
+
 run-server: $(ZKSYNC_SERVER_HOME)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
 		cd $(ZKSYNC_SERVER_HOME) && \
@@ -174,6 +182,10 @@ run-prover-compressor: $(ZKSYNC_PROVER_HOME)
 run-prover-all: $(ZKSYNC_PROVER_HOME) run-prover-gateway run-prover-witness-generators run-prover-witness-vector-gen run-prover-prover run-prover-compressor
 
 # Main
+
+up-no-prover: server explorer portal
+
+up: up-no-prover prover-all
 
 server:
 	tmux kill-session -t server 2>/dev/null || exit 0

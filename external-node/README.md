@@ -66,7 +66,7 @@ docker-compose --file en-docker-compose.yml up
 |   3181    |    3081     |    HEALTHCHECK    |
 |   3322    |    3322     | PROMETHEUS SCRAPE |
 |   5430    |    5430     |     POSTGRES      |
-|   9090    |    9090     | PROMETHEUS FRONT  |
+|   9190    |    9090     | PROMETHEUS FRONT  |
 |   3100    |    3100     |      GRAFANA      |
 
 </div>

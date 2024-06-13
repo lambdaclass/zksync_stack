@@ -62,7 +62,7 @@ sed "s/^operator_blobs_eth_addr.=.*$/operator_blobs_eth_addr = $(get_param .netw
 sed "s/^fee_account_private_key.=.*$/fee_account_private_key = $(get_param .network.fee_account_private_key)/" > custom_configs/$ZK_ENV.toml
 
 # Makefile
-sed "s/^DEPLOYER_PRIVATE_KEY=.*$/DEPLOYER_PRIVATE_KEY=$(get_param .network.deployer_private_key)/" Makefile | \
-sed "s/^GOVERNANCE_PRIVATE_KEY=.*$/GOVERNANCE_PRIVATE_KEY=$(get_param .network.deployer_private_key)/" | \
-sed "s/^GOVERNOR_PRIVATE_KEY=.*$/GOVERNOR_PRIVATE_KEY=$(get_param .network.deployer_private_key)/" | \
+sed "s/^ZKSYNC_DEPLOYER_PRIVATE_KEY=.*$/DEPLOYER_PRIVATE_KEY=$(get_param .network.deployer_private_key)/" Makefile | \
+sed "s/^ZKSYNC_GOVERNANCE_PRIVATE_KEY=.*$/GOVERNANCE_PRIVATE_KEY=$(get_param .network.deployer_private_key)/" | \
+sed "s/^ZKSYNC_GOVERNOR_PRIVATE_KEY=.*$/GOVERNOR_PRIVATE_KEY=$(get_param .network.deployer_private_key)/" | \
 sed "s/^ZKSYNC_ENV=.*$/ZKSYNC_ENV=$ZK_ENV/" | sponge Makefile

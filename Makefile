@@ -20,7 +20,7 @@ ZKSYNC_DEPLOYER_PRIVATE_KEY=
 ZKSYNC_GOVERNANCE_PRIVATE_KEY=
 ZKSYNC_GOVERNOR_PRIVATE_KEY=
 # Envs
-ZKSYNC_ENV=shyft
+ZKSYNC_ENV=
 
 
 # General
@@ -49,13 +49,13 @@ download-server: deps
 	git -C ${ZKSYNC_SERVER_HOME} pull origin ${SERVER_COMMIT}:${SERVER_COMMIT} --ff-only 2>/dev/null || git clone ${SERVER_REPO} ${ZKSYNC_SERVER_HOME}
 	git -C ${ZKSYNC_SERVER_HOME} checkout ${SERVER_COMMIT}
 	cp diffs/observability.diff ${ZKSYNC_SERVER_HOME}
-	cp configs/network.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
+	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
 
 download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} checkout ${EXPLORER_COMMIT}
-	cp configs/explorer.config.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
+	cp custom_configs/explorer.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0	
@@ -63,7 +63,7 @@ download-explorer: deps
 download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT}
-	cp configs/portal.config.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
+	cp custom_configs/portal.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
 	cp diffs/portal/portal.diff ${ZKSYNC_PORTAL_HOME}
 	cp -r diffs/portal/maintenance ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0
@@ -71,7 +71,7 @@ download-portal: deps
 download-prover: deps
 	git -C ${ZKSYNC_PROVER_HOME} pull origin ${PROVER_COMMIT}:${PROVER_COMMIT} --ff-only 2>/dev/null || git clone ${PROVER_REPO} ${ZKSYNC_PROVER_HOME}
 	git -C ${ZKSYNC_PROVER_HOME} checkout ${PROVER_COMMIT}
-	cp configs/network.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
+	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 
 # Setup
 

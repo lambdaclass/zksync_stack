@@ -64,6 +64,7 @@ download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT}
 	cp custom_configs/portal.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
+	cp custom_configs/portal.env ${ZKSYNC_PORTAL_HOME}/.env
 	cp diffs/portal/portal.diff ${ZKSYNC_PORTAL_HOME}
 	cp -r diffs/portal/maintenance ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0

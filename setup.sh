@@ -39,6 +39,9 @@ jq \
 	 .[0].tokens += $(get_param .portal.extra_tokens)" \
 	configs/portal.config.json > custom_configs/portal.json
 
+sed "s/^WALLET_CONNECT_PROJECT_ID=.*$/WALLET_CONNECT_PROJECT_ID=$(get_param .portal.wallet_connect_apikey)/" configs/portal.env | \
+sed "s/ANKR_TOKEN=.*$/ANKR_TOKEN=$(get_param .portal.ankr_token)/" > custom_configs/portal.env
+
 # Explorer
 jq \
 	".networks[0].apiUrl = $(get_param .explorer.api_url) | \

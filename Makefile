@@ -94,12 +94,12 @@ setup-server: download-server
 
 ## Explorer
 
-setup-explorer: ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
-setup-explorer: DATABASE_HOST=127.0.0.1
-setup-explorer: DATABASE_USER=postgres
-setup-explorer: DATABASE_PASSWORD=notsecurepassword
-setup-explorer: DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
-setup-explorer: BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
+setup-explorer: export ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
+setup-explorer: export DATABASE_HOST=127.0.0.1
+setup-explorer: export DATABASE_USER=postgres
+setup-explorer: export DATABASE_PASSWORD=notsecurepassword
+setup-explorer: export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
+setup-explorer: export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
 setup-explorer: download-explorer
 	cd $(ZKSYNC_EXPLORER_HOME) ; npm install
 	cd $(ZKSYNC_EXPLORER_HOME)/packages/worker ; npm run db:create || exit 0

@@ -136,11 +136,17 @@ run-all-no-prover: run-server run-explorer run-portal
 
 run-all: run-all-no-prover run-prover-all
 
+run-server: ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
 run-server: $(ZKSYNC_SERVER_HOME)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
 		cd $(ZKSYNC_SERVER_HOME) && \
 		zk server --components=api,eth,tree,state_keeper,housekeeper,commitment_generator,proof_data_handler
 
+run-explorer: export DATABASE_HOST=127.0.0.1
+run-explorer: export DATABASE_USER=postgres
+run-explorer: export DATABASE_PASSWORD=notsecurepassword
+run-explorer: export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
+run-explorer: export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
 run-explorer: $(ZKSYNC_EXPLORER_HOME)
 	cd $(ZKSYNC_EXPLORER_HOME) ; npm run dev
 

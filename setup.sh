@@ -51,7 +51,7 @@ jq \
 	configs/explorer.config.json > custom_configs/explorer.json
 
 # ZK env
-sed "s;l2-inits/custom.init.env;l2-inits/$ZK_ENV.init.env;" configs/custom.toml | \
+sed "s;l2-inits/custom.init.env;l2-inits/$ZK_ENV.init.env;" configs/network.toml | \
 sed "s/^network.=.*$/network = $(get_param .network.l1.name | lower)/" | \
 sed "s/^fee_account_addr.=.*$/fee_account_addr = $(get_param .network.fee_account_addr)/" | \
 sed "s;^web3_url.=.*$;web3_url = $(get_param .network.l1.rpc_url);" | \

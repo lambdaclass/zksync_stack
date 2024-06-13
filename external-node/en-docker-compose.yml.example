@@ -86,4 +86,3 @@ volumes:
   testnet-rocksdb: {}
   testnet-prometheus-data: {}
   testnet-grafana-data: {}
-

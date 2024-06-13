@@ -1,0 +1,89 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    volumes:
+      - testnet-prometheus-data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    expose:
+      - 9090
+  grafana:
+    image: grafana/grafana:9.3.6
+    volumes:
+      - testnet-grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SERVER_HTTP_PORT: 3100
+    ports:
+      - "3100:3100"
+  postgres:
+    image: "postgres:14"
+    command: > 
+      postgres 
+      -c max_connections=200 
+      -c log_error_verbosity=terse 
+      -c shared_buffers=2GB 
+      -c effective_cache_size=4GB
+      -c maintenance_work_mem=1GB
+      -c checkpoint_completion_target=0.9
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c min_wal_size=4GB
+      -c max_wal_size=16GB
+      -c max_worker_processes=16
+      -c checkpoint_timeout=1800
+    volumes:
+      - testnet-postgres:/var/lib/postgresql/data
+      - ./restore_dump.sh:/docker-entrypoint-initdb.d/restore_dump.sh
+      - ./pg_backups:/pg_backups
+    healthcheck:
+      interval: 1s
+      timeout: 3s
+      test: psql -U postgres -c "select exists (select * from pg_stat_activity where datname = 'postgres' and application_name = 'pg_restore')" | grep -e ".f$"
+    environment:
+      - POSTGRES_PASSWORD=notsecurepassword
+      - PGPORT=5430
+    ports:
+      - "5430:5430"
+  external-node:
+    image: "matterlabs/external-node:2.0-v24.7.0-alpha"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3150:3050"
+      - "3151:3051"
+      - "3181:3081"
+      - "3322:3322"
+    volumes:
+      - testnet-rocksdb:/db
+    extra_hosts:
+      - "host:host-gateway"
+    environment:
+      DATABASE_URL: "postgres://postgres:notsecurepassword@postgres:5430/shyft_local_ext_node"
+      DATABASE_POOL_SIZE: 10
+
+      EN_HTTP_PORT: 3050
+      EN_WS_PORT: 3051
+      EN_HEALTHCHECK_PORT: 3081
+      EN_PROMETHEUS_PORT: 3322
+      EN_ETH_CLIENT_URL: https://ethereum-sepolia-rpc.publicnode.com
+      EN_MAIN_NODE_URL: ## NEEDED
+      EN_L1_CHAIN_ID: 11155111
+      EN_L2_CHAIN_ID: ## NEEDED
+
+      EN_STATE_CACHE_PATH: "./db/ext-node/state_keeper"
+      EN_MERKLE_TREE_PATH: "./db/ext-node/lightweight"
+      EN_SNAPSHOTS_RECOVERY_ENABLED: "false"
+      EN_SNAPSHOTS_OBJECT_STORE_BUCKET_BASE_URL: ""
+      EN_SNAPSHOTS_OBJECT_STORE_MODE: ""
+      RUST_LOG: "warn,zksync=info,zksync_core::metadata_calculator=debug,zksync_state=debug,zksync_utils=debug,zksync_web3_decl::client=error"
+
+volumes:
+  testnet-postgres: {}
+  testnet-rocksdb: {}
+  testnet-prometheus-data: {}
+  testnet-grafana-data: {}
+

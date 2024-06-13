@@ -23,3 +23,24 @@ index c0b4aea25..1b5f02528 100644
      port: 3010,
    },
    build: {
+diff --git a/package.json b/package.json
+index 0fb2e53ab..3498022d2 100644
+--- a/package.json
++++ b/package.json
+@@ -19,6 +19,7 @@
+     "dev": "lerna run dev",
+     "build": "lerna run build",
+     "start": "lerna run start",
++    "maintenance": "serve -p 3010 maintenance/",
+     "db:create": "lerna run db:create",
+     "db:drop": "lerna run db:drop",
+     "hyperchain:configure": "ts-node scripts/setup-hyperchain-config"
+@@ -47,5 +48,8 @@
+   "engines": {
+     "npm": ">=9.0.0",
+     "node": ">=18.0.0"
++  },
++  "dependencies": {
++    "serve": "14.2.3"
+   }
+ }

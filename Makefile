@@ -111,13 +111,15 @@ download-portal:
 	git -C ${ZKSYNC_PORTAL_HOME} checkout ${PORTAL_COMMIT} && git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT} --ff-only || git clone https://github.com/matter-labs/dapp-portal.git ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} checkout  ${PORTAL_COMMIT}
 	cp configs/portal.config.json ${ZKSYNC_PORTAL_HOME}/hyperchains/config.json
-	cp diffs/portal.diff ${ZKSYNC_PORTAL_HOME}
+	cp diffs/portal/portal.diff ${ZKSYNC_PORTAL_HOME}
+	cp -r diffs/portal/maintenance ${ZKSYNC_PORTAL_HOME}
 	git -C ${ZKSYNC_PORTAL_HOME} apply portal.diff || exit 0
 
 download-explorer:
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin main --ff-only || git clone https://github.com/matter-labs/block-explorer.git ${ZKSYNC_EXPLORER_HOME}
 	cp configs/explorer.config.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
-	cp diffs/explorer.diff ${ZKSYNC_EXPLORER_HOME}
+	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
+	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0
 
 download-core:

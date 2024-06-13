@@ -1,0 +1,23 @@
+diff --git a/package.json b/package.json
+index c1d0636..29085c9 100644
+--- a/package.json
++++ b/package.json
+@@ -13,6 +13,7 @@
+     "generate:node:hyperchain": "ts-node --transpile-only scripts/hyperchains/empty-check.ts && cross-env NODE_TYPE=hyperchain npm run generate",
+     "generate-meta": "ts-node --transpile-only scripts/updateBridgeMetaTags.ts",
+     "hyperchain:create": "ts-node --transpile-only scripts/hyperchains/create.ts",
++    "maintenance": "serve -p 3002 maintenance/",
+     "preview": "nuxt preview",
+     "postinstall": "nuxt prepare",
+     "prepare": "husky install",
+--- a/scripts/hyperchains/configure.ts
++++ b/scripts/hyperchains/configure.ts
+@@ -19,7 +19,7 @@ if (!rootPath) {
+   process.exit(1);
+ }
+ 
+-const envsDirectory = pathJoin(rootPath, "/etc/env");
++const envsDirectory = pathJoin(rootPath, "/etc/env/target");
+ const tokensDirectory = pathJoin(rootPath, "/etc/tokens");
+ 
+ const configureHyperchainInfo = async () => {

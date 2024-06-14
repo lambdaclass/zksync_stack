@@ -2,16 +2,15 @@
 
 ## Before running the stack (configuration)
 
-Before running the stack we need to set up the configuration files. These can be found in the `configs` directory. The configuration files are:
+Before running the stack we need to set up the configuration files. To do this, create a `config.json` file at the root of the project and populate it with your config, an example can be found on `config.example.json`. Then, run the following command:
 
-- `network.toml`: This file contains the configuration for the L2 node. It includes the private keys and addresses for the operator, the fee account, and the prover. It also includes the configuration for the L1 node (specifically, the network name), the prover, and the state keeper.
-- `explorer.config.json`: This file contains the configuration for the block explorer. It includes the configuration for both the testnet and mainnet networks.
-- `portal.config.json`: This file contains the configuration for the portal.
+```
+bash setup.sh
+```
 
-Finally, this is not a configuration file but it is something that we must set up before running the stack. The `Makefile` exports some private keys needed for the stack initialization. These keys are:
-- `ZKSYNC_DEPLOYER_PRIVATE_KEY`: The private key of the deployer account.
-- `ZKSYNC_GOVERNANCE_PRIVATE_KEY`: The private key of the governance account.
-- `ZKSYNC_GOVERNOR_PRIVATE_KEY`: The private key of the governor account.
+This will create a `custom_configs` directory with all the configuration files needed to run the stack, and it also will slightly modify the `Makefile` with some env vars.
+
+Below on this document you can find a complete reference of all configuration options.
 
 ## Running the stack
 
@@ -115,3 +114,42 @@ When the stack is initiated in prover mode, various binaries execute, each conta
 - **Witness generators**: Responsible for creating prover jobs. The `tmux` session for this part is `pwg`.
 - **Witness vector generator**: Responsible for creating prover jobs. The `tmux` session for this part is `pwv`.
 - **Proof compressor**: The final step that compresses/wraps the FRI proof into a SNARK. The `tmux` session for this part is `pc`.
+
+## Config reference
+
+The `config.json` file accepts the following elements. All
+
+- explorer:
+    - **api_url** (string): The URL for the explorer API
+    - **web_url** (string): The URL for the explorer web
+    - **hostnames** (string[]): A list of hostnames for the explorer
+- network:
+    - l1:
+        - **rpc_url** (string): The URL of the L1 RPC
+        - **name** (string): The name of the L1 network
+        - **chain_id** (integer): Chain ID of the L1 network
+    - l2:
+        - **rpc_url** (string): The URL of the L2 RPC
+        - **name** (string): The name of the L2 network
+        - **chain_id** (integer): Chain ID of the L2 network
+    - **env_name** (string): Name of the zkstack environment
+    - **operator_private_key** (string): Commitment operator private key
+    - **operator_commit_eth_addr** (string): Commitment operator address
+    - **operator_blobs_private_key** (string): Blobs operator private key
+    - **operator_blobs_eth_addr** (string): Blobs operator address
+    - **fee_account_private_key** (string): Fee account private key
+    - **fee_account_addr** (string): Fee account address
+    - **deployer_private_key** (string): Deployer private key
+    - **governance_private_key** (string): Governance private key
+    - **governor_private_key** (string): Governor private key
+- portal:
+    - **web_url** (string): The URL for the portal web
+    - **wallet_connect_apikey** (string): API key for wallet connect. It can be an empty string
+    - **ankr_token** (string): API key for ANKR. It can be an empty string
+    - **extra_tokens** (list): List of extra ERC20 tokens that will always appear on the portal. It can be an empty list
+        - **address** (string | optional): L2 address of the token
+        - **l1Address** (string): L1 address of the token
+        - **symbol** (string): Token symbol
+        - **name** (string): Token name
+        - **decimals** (integer): Token decimals
+        - **iconUrl** (string | optional): The URL of the token icon. The root for absolute paths is `portal/public`

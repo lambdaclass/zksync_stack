@@ -117,39 +117,39 @@ When the stack is initiated in prover mode, various binaries execute, each conta
 
 ## Config reference
 
-The `config.json` file accepts the following elements. All
+The `config.json` file accepts the following elements. All of them are required except it says **optional**.
 
-- explorer:
-    - **api_url** (string): The URL for the explorer API
-    - **web_url** (string): The URL for the explorer web
-    - **hostnames** (string[]): A list of hostnames for the explorer
-- network:
-    - l1:
-        - **rpc_url** (string): The URL of the L1 RPC
-        - **name** (string): The name of the L1 network
-        - **chain_id** (integer): Chain ID of the L1 network
-    - l2:
-        - **rpc_url** (string): The URL of the L2 RPC
-        - **name** (string): The name of the L2 network
-        - **chain_id** (integer): Chain ID of the L2 network
-    - **env_name** (string): Name of the zkstack environment
-    - **operator_private_key** (string): Commitment operator private key
-    - **operator_commit_eth_addr** (string): Commitment operator address
-    - **operator_blobs_private_key** (string): Blobs operator private key
-    - **operator_blobs_eth_addr** (string): Blobs operator address
-    - **fee_account_private_key** (string): Fee account private key
-    - **fee_account_addr** (string): Fee account address
-    - **deployer_private_key** (string): Deployer private key
-    - **governance_private_key** (string): Governance private key
-    - **governor_private_key** (string): Governor private key
-- portal:
-    - **web_url** (string): The URL for the portal web
-    - **wallet_connect_apikey** (string): API key for wallet connect. It can be an empty string
-    - **ankr_token** (string): API key for ANKR. It can be an empty string
-    - **extra_tokens** (list): List of extra ERC20 tokens that will always appear on the portal. It can be an empty list
-        - **address** (string | optional): L2 address of the token
-        - **l1Address** (string): L1 address of the token
-        - **symbol** (string): Token symbol
-        - **name** (string): Token name
-        - **decimals** (integer): Token decimals
-        - **iconUrl** (string | optional): The URL of the token icon. The root for absolute paths is `portal/public`
+- `explorer`:
+    - `api_url` (**string**): The URL for the explorer API
+    - `web_url` (**string**): The URL for the explorer web
+    - `hostnames` (**string[]**): A list of hostnames for the explorer
+- `network`:
+    - `l1`:
+        - `rpc_url` (**string**): The URL of the L1 RPC
+        - `name` (**string**): The name of the L1 network
+        - `chain_id` (**integer**): Chain ID of the L1 network
+    - `l2`:
+        - `rpc_url` (**string**): The URL of the L2 RPC
+        - `name` (**string**): The name of the L2 network
+        - `chain_id` (**integer**): Chain ID of the L2 network
+    - `env_name` (**string**): Name of the zkstack environment
+    - `operator_private_key` (**string**): Commitment operator private key
+    - `operator_commit_eth_addr` (**string**): Commitment operator address
+    - `operator_blobs_private_key` (**string**): Blobs operator private key
+    - `operator_blobs_eth_addr` (**string**): Blobs operator address
+    - `fee_account_private_key` (**string**): Fee account private key
+    - `fee_account_addr` (**string**): Fee account address
+    - `deployer_private_key` (**string**): Deployer private key
+    - `governance_private_key` (**string**): Governance private key
+    - `governor_private_key` (**string**): Governor private key
+- `portal`:
+    - `web_url` (**string**): The URL for the portal web
+    - `wallet_connect_apikey` (**string**): API key for wallet connect. It can be an empty string
+    - `ankr_token` (**string**): API key for ANKR. It can be an empty string
+    - `extra_tokens` (**list**): List of extra ERC20 tokens that will always appear on the portal. It can be an empty list
+        - `address` (**string | optional**): L2 address of the token
+        - `l1Address` (**string**): L1 address of the token
+        - `symbol` (**string**): Token symbol
+        - `name` (**string**): Token name
+        - `decimals` (**integer**): Token decimals
+        - `iconUrl` (**string | optional**): The URL of the token icon. The root for absolute paths is `portal/public`

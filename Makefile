@@ -135,7 +135,7 @@ setup-prover: download-prover
 
 # Run
 
-run-server: ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
+run-server: export ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
 run-server: $(ZKSYNC_SERVER_HOME)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
 		cd $(ZKSYNC_SERVER_HOME) && \

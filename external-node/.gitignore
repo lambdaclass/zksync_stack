@@ -1,2 +1,4 @@
 en-docker-compose.yml
+snapshots-docker-compose.yml
+key.json
 pg_backups/*.dump

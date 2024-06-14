@@ -36,8 +36,9 @@ services:
       -c checkpoint_timeout=1800
     volumes:
       - testnet-postgres:/var/lib/postgresql/data
-      - ./restore_dump.sh:/docker-entrypoint-initdb.d/restore_dump.sh
       - ./pg_backups:/pg_backups
+      # Uncomment this line if using postgres' dumps
+      #- ./restore_dump.sh:/docker-entrypoint-initdb.d/restore_dump.sh
     healthcheck:
       interval: 1s
       timeout: 3s
@@ -76,9 +77,11 @@ services:
 
       EN_STATE_CACHE_PATH: "./db/ext-node/state_keeper"
       EN_MERKLE_TREE_PATH: "./db/ext-node/lightweight"
-      EN_SNAPSHOTS_RECOVERY_ENABLED: "false"
-      EN_SNAPSHOTS_OBJECT_STORE_BUCKET_BASE_URL: ""
-      EN_SNAPSHOTS_OBJECT_STORE_MODE: ""
+      # Set to false if using postgres' dumps
+      EN_SNAPSHOTS_RECOVERY_ENABLED: "true"
+      # Just write down the <THIS STRING> specified in the URL: https://console.cloud.google.com/storage/browser/<THIS STRING>
+      EN_SNAPSHOTS_OBJECT_STORE_BUCKET_BASE_URL: "<THIS STRING>"
+      EN_SNAPSHOTS_OBJECT_STORE_MODE: "GCSAnonymousReadOnly"
       RUST_LOG: "warn,zksync=info,zksync_core::metadata_calculator=debug,zksync_state=debug,zksync_utils=debug,zksync_web3_decl::client=error"
 
 volumes:

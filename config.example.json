@@ -1,0 +1,42 @@
+{
+	"explorer": {
+		"api_url": "http://localhost:3020",
+		"web_url": "http://localhost:3010",
+		"hostnames": [
+			"localhost"
+		]
+	},
+	"network": {
+		"l1": {
+			"rpc_url": "https://rpc.sepolia.org",
+			"name": "Sepolia",
+			"chain_id": 11155111
+		},
+		"l2": {
+			"rpc_url": "http://localhost:3050",
+			"name": "Shyft",
+			"chain_id": 270
+		},
+		"env_name": "shyft",
+		"operator_private_key": "0x",
+		"operator_commit_eth_addr": "0x",
+		"operator_blobs_private_key": "0x",
+		"operator_blobs_eth_addr": "0x",
+		"fee_account_private_key": "0x",
+		"fee_account_addr": "0x",
+		"deployer_private_key": "0x",
+		"governance_private_key": "0x",
+		"governor_private_key": "0x"
+	},
+	"portal": {
+		"web_url": "http://localhost:3002",
+		"wallet_connect_apikey": "",
+		"ankr_token": "",
+		"extra_tokens": [{
+			"l1Address": "0x",
+			"symbol": "LAM",
+			"name": "Lambcoin",
+			"decimals": 18
+		}]
+	}
+}

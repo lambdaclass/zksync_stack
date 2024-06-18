@@ -1,3 +1,12 @@
+# Determine the operating system
+UNAME := $(shell uname)
+
+# Define variables for package managers and commands
+ifeq ($(UNAME), Darwin)  # macOS
+    DEPS_TARGET := macos-deps
+else  # Linux assumed
+    DEPS_TARGET := linux-deps
+endif
 .PHONY: deps down clean prune download-server download-explorer download-portal download-prover setup-all setup-all-no-prover setup-server setup-explorer setup-portal setup-prover run-server run-explorer run-portal run-prover-gateway run-prover-witness-generator run-prover-witness-vector-gen run-prover-prover run-prover-compressor run-prover-all up-no-prover up server explorer portal prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor prover-all
 
 # Homes
@@ -16,16 +25,23 @@ PROVER_COMMIT=prover-v14.5.0
 EXPLORER_COMMIT=main
 PORTAL_COMMIT=35b9f7cd21765224f503b9a2a5e3d432c39db6dd
 # Private keys
-ZKSYNC_DEPLOYER_PRIVATE_KEY=
-ZKSYNC_GOVERNANCE_PRIVATE_KEY=
-ZKSYNC_GOVERNOR_PRIVATE_KEY=
+ZKSYNC_DEPLOYER_PRIVATE_KEY="0x385c546456b6a603a1cfcaa9ec9494ba4832da08dd6bcf4de9a71e4a01b74924"
+ZKSYNC_GOVERNANCE_PRIVATE_KEY="0x385c546456b6a603a1cfcaa9ec9494ba4832da08dd6bcf4de9a71e4a01b74924"
+ZKSYNC_GOVERNOR_PRIVATE_KEY="0x385c546456b6a603a1cfcaa9ec9494ba4832da08dd6bcf4de9a71e4a01b74924"
 # Envs
-ZKSYNC_ENV=
+ZKSYNC_ENV=shyft
 
 
 # General
+deps: $(DEPS_TARGET)
 
-deps:
+# macOS dependencies
+macos-deps:
+	brew install moreutils wget tmux
+	brew install yq
+
+# Linux dependencies
+linux-deps:
 	sudo apt install -y moreutils wget tmux
 	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
 	sudo chmod +x /usr/bin/yq
@@ -58,7 +74,7 @@ download-explorer: deps
 	cp custom_configs/explorer.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
-	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0	
+	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0
 
 download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
@@ -87,7 +103,7 @@ setup-server: export DEPLOYER_PRIVATE_KEY=${ZKSYNC_DEPLOYER_PRIVATE_KEY}
 setup-server: export GOVERNANCE_PRIVATE_KEY=${ZKSYNC_GOVERNANCE_PRIVATE_KEY}
 setup-server: export GOVERNOR_PRIVATE_KEY=${ZKSYNC_GOVERNOR_PRIVATE_KEY}
 setup-server: download-server
-	sudo chown -R $(USER):$(USER) $(ZKSYNC_SERVER_HOME)
+	sudo chown -R $(USER): $(ZKSYNC_SERVER_HOME)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
 		cd $(ZKSYNC_SERVER_HOME) && \
 		./bin/zk && \

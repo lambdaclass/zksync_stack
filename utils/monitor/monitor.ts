@@ -17,8 +17,10 @@ const log = async (msg: string) => {
 // ################ VARIABLES ################
 const L1_RPC_ENDPOINT = env.L1_RPC_URL || "http://127.0.0.1:8545";
 const L2_RPC_ENDPOINT = env.L2_RPC_URL || "http://127.0.0.1:3050";
+console.log(L1_RPC_ENDPOINT);
+console.log(L2_RPC_ENDPOINT);
 
-const SLEEP_MS = env.SLEEP_MS|| 10000;
+const SLEEP_MS = Number(env.SLEEP_MS)|| 10000;
 
 const L1_ADDR = env.L1_ADDR || "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049";
 
@@ -45,7 +47,7 @@ const checkBlock = async () => {
             await log("Node is up")
             alive = true
         } else if ((block == prevBlock) && alive) {
-            await log(`Not advancing block: ${block} // prevBlock: ${prevBlock}`);
+            await log(`Not advancing; block: ${block} // prevBlock: ${prevBlock}`);
             alive = false
         }
 
@@ -64,11 +66,11 @@ const checkBalance = async (addr: string) => {
 
         for (let i = 0; i < THRESHOLD.length; i++) {
             if (balance < THRESHOLD[i] && lastBalance >= THRESHOLD[i]) {
-                await log(`Balance is less than: ${balance}`);
+                await log(`Balance of ${addr} is: ${balance}`);
                 break;
             }
             else if (balance >= THRESHOLD[i] && lastBalance < THRESHOLD[i]) {
-                await log(`Balance of ${addr} is more than: ${balance}`);
+                await log(`Balance of ${addr} increased to: ${balance}`);
                 break;
             }
         }
@@ -81,6 +83,9 @@ const checkBalance = async (addr: string) => {
 // ################ CHECKERS ################
 
 async function main() {
+    while (1) {
+        await Bun.sleep(SLEEP_MS);
+    }
     let p1 =  checkBalance(L1_ADDR);
 
     let p2 = checkBlock();

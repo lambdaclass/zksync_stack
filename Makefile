@@ -7,6 +7,7 @@ ifeq ($(UNAME), Darwin)  # macOS
 else  # Linux assumed
     DEPS_TARGET := linux-deps
 endif
+
 .PHONY: deps down clean prune download-server download-explorer download-portal download-prover setup-all setup-all-no-prover setup-server setup-explorer setup-portal setup-prover run-server run-explorer run-portal run-prover-gateway run-prover-witness-generator run-prover-witness-vector-gen run-prover-prover run-prover-compressor run-prover-all up-no-prover up server explorer portal prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor prover-all
 
 # Homes
@@ -25,9 +26,9 @@ PROVER_COMMIT=prover-v14.5.0
 EXPLORER_COMMIT=main
 PORTAL_COMMIT=35b9f7cd21765224f503b9a2a5e3d432c39db6dd
 # Private keys
-ZKSYNC_DEPLOYER_PRIVATE_KEY="0x385c546456b6a603a1cfcaa9ec9494ba4832da08dd6bcf4de9a71e4a01b74924"
-ZKSYNC_GOVERNANCE_PRIVATE_KEY="0x385c546456b6a603a1cfcaa9ec9494ba4832da08dd6bcf4de9a71e4a01b74924"
-ZKSYNC_GOVERNOR_PRIVATE_KEY="0x385c546456b6a603a1cfcaa9ec9494ba4832da08dd6bcf4de9a71e4a01b74924"
+ZKSYNC_DEPLOYER_PRIVATE_KEY=
+ZKSYNC_GOVERNANCE_PRIVATE_KEY=
+ZKSYNC_GOVERNOR_PRIVATE_KEY=
 # Envs
 ZKSYNC_ENV=shyft
 

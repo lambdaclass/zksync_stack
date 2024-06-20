@@ -1,3 +1,5 @@
+.PHONY: deps down clean prune download-server download-explorer download-portal download-prover setup-all setup-all-no-prover setup-server setup-explorer setup-portal setup-prover run-server run-explorer run-portal run-prover-gateway run-prover-witness-generator run-prover-witness-vector-gen run-prover-prover run-prover-compressor run-prover-all up-no-prover up server explorer portal prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor prover-all
+
 # Determine the operating system
 UNAME := $(shell uname)
 
@@ -7,8 +9,6 @@ ifeq ($(UNAME), Darwin)  # macOS
 else  # Linux assumed
     DEPS_TARGET := linux-deps
 endif
-
-.PHONY: deps down clean prune download-server download-explorer download-portal download-prover setup-all setup-all-no-prover setup-server setup-explorer setup-portal setup-prover run-server run-explorer run-portal run-prover-gateway run-prover-witness-generator run-prover-witness-vector-gen run-prover-prover run-prover-compressor run-prover-all up-no-prover up server explorer portal prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor prover-all
 
 # Homes
 ZKSYNC_SERVER_HOME=$(shell pwd)/zksync-era-server
@@ -30,10 +30,11 @@ ZKSYNC_DEPLOYER_PRIVATE_KEY=
 ZKSYNC_GOVERNANCE_PRIVATE_KEY=
 ZKSYNC_GOVERNOR_PRIVATE_KEY=
 # Envs
-ZKSYNC_ENV=shyft
+ZKSYNC_ENV=
 
 
 # General
+
 deps: $(DEPS_TARGET)
 
 # macOS dependencies
@@ -69,14 +70,13 @@ download-server: deps
 	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	git -C ${ZKSYNC_SERVER_HOME} apply --reverse --check observability.diff || exit 0
 	
-
 download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} checkout ${EXPLORER_COMMIT}
 	cp custom_configs/explorer.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
-	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0
+	git -C ${ZKSYNC_EXPLORER_HOME} apply --reverse --check explorer.diff || exit 0
 
 download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}

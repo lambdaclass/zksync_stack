@@ -26,11 +26,11 @@ PROVER_COMMIT=prover-v14.5.0
 EXPLORER_COMMIT=main
 PORTAL_COMMIT=35b9f7cd21765224f503b9a2a5e3d432c39db6dd
 # Private keys
-ZKSYNC_DEPLOYER_PRIVATE_KEY=
-ZKSYNC_GOVERNANCE_PRIVATE_KEY=
-ZKSYNC_GOVERNOR_PRIVATE_KEY=
+ZKSYNC_DEPLOYER_PRIVATE_KEY="0x27593fea79697e947890ecbecce7901b0008345e5d7259710d0dd5e500d040be"
+ZKSYNC_GOVERNANCE_PRIVATE_KEY="0x27593fea79697e947890ecbecce7901b0008345e5d7259710d0dd5e500d040be"
+ZKSYNC_GOVERNOR_PRIVATE_KEY="0x27593fea79697e947890ecbecce7901b0008345e5d7259710d0dd5e500d040be"
 # Envs
-ZKSYNC_ENV=
+ZKSYNC_ENV=shyft
 
 
 # General
@@ -68,7 +68,7 @@ download-server: deps
 	git -C ${ZKSYNC_SERVER_HOME} checkout ${SERVER_COMMIT}
 	cp diffs/observability.diff ${ZKSYNC_SERVER_HOME}
 	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
-	git -C ${ZKSYNC_SERVER_HOME} apply --reverse --check observability.diff || exit 0
+	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
 	
 download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
@@ -76,7 +76,7 @@ download-explorer: deps
 	cp custom_configs/explorer.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
-	git -C ${ZKSYNC_EXPLORER_HOME} apply --reverse --check explorer.diff || exit 0
+	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0
 
 download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}

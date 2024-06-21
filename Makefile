@@ -159,6 +159,12 @@ run-server: $(ZKSYNC_SERVER_HOME)
 		cd $(ZKSYNC_SERVER_HOME) && \
 		zk server --components=api,eth,tree,state_keeper,housekeeper,commitment_generator,proof_data_handler
 
+run-contract-verification-api: export ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
+run-contract-verification-api: $(ZKSYNC_SERVER_HOME)
+	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
+		cd $(ZKSYNC_SERVER_HOME) && \
+		zk server --components=contract_verification_api
+
 run-explorer: export DATABASE_HOST=127.0.0.1
 run-explorer: export DATABASE_USER=postgres
 run-explorer: export DATABASE_PASSWORD=notsecurepassword

@@ -53,8 +53,8 @@ down:
 	rm -rf /tmp/tmux*
 
 clean:
-	ZKSYNC_HOME=${ZKSYNC_SERVER_HOME} zk clean --all
-	ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} zk clean --all
+	@if [ -d "$(ZKSYNC_SERVER_HOME)" ]; then ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME) zk clean --all; fi 
+	@if [ -d "$(ZKSYNC_PROVER_HOME)" ]; then ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) zk clean --all; fi 
 	docker rm -f $(shell docker ps -qa) 2>/dev/null || exit 0
 
 prune: down

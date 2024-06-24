@@ -5,7 +5,7 @@
 Run the following to setup the `systemd service`:
 
 ```sh
-
+curl https://raw.githubusercontent.com/lambdaclass/zksync_stack/feat_custom_monitor/utils/monitor/setup.sh | bash
 ```
 
 This will automatically clone the repo at `/home/admin/zksync_stack` and `cp` the `monitor.service` in `/lib/systemd/system/`.

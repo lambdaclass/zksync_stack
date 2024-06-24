@@ -117,7 +117,7 @@ setup-portal: download-portal
 
 ## Prover
 
-setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_CORE_HOME}/prover/vk_setup_data_generator_server_fri/data
+setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_SERVER_HOME}/prover/vk_setup_data_generator_server_fri/data
 setup-prover: download-prover
 	cp ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	cp -r ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/l2-inits ${ZKSYNC_PROVER_HOME}/etc/env
@@ -131,7 +131,7 @@ setup-prover: download-prover
 		zk && \
 		zk env ${ZKSYNC_ENV} && \
 		zk f cargo run --features gpu --release --bin key_generator --generate-sk-gpu all --recompute-if-missing
-		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_CORE_HOME}/etc/env/target/
+		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
 
 # Run
 

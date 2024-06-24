@@ -20,7 +20,7 @@ const L2_RPC_ENDPOINT = env.L2_RPC_URL || "http://127.0.0.1:3050";
 console.log(L1_RPC_ENDPOINT);
 console.log(L2_RPC_ENDPOINT);
 
-const SLEEP_MS = Number(env.SLEEP_MS)|| 10000;
+const SLEEP_MS = Number(env.SLEEP_MS) || 10000;
 
 const L1_ADDR = env.L1_ADDR || "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049";
 
@@ -31,8 +31,19 @@ const l2provider = new Provider(L2_RPC_ENDPOINT);
 
 // ################ CHECKERS ################
 const checkBlock = async () => {
-    let prevBlock = await l2provider.getBlockNumber();
+    let prevBlock = 0
     let alive = false
+
+    while (true) {
+        try {
+            const block = await l2provider.getBlockNumber();
+            prevBlock = Number(block);
+            break;
+        } catch (error) {
+            console.error(`Error fetching block number`);
+        }
+    }
+
     await Bun.sleep(SLEEP_MS);
 
     while (true) {
@@ -83,10 +94,8 @@ const checkBalance = async (addr: string) => {
 // ################ CHECKERS ################
 
 async function main() {
-    while (1) {
-        await Bun.sleep(SLEEP_MS);
-    }
-    let p1 =  checkBalance(L1_ADDR);
+    await log("The monitor service is up and running")
+    let p1 = checkBalance(L1_ADDR);
 
     let p2 = checkBlock();
 

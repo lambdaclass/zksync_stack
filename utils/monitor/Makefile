@@ -12,8 +12,8 @@ install:
 .PHONY: install
 
 setup: install
-	sudo systemctl start monitor
 	sudo systemctl daemon-reload
+	sudo systemctl start monitor
 .PHONY: setup
 
 start:

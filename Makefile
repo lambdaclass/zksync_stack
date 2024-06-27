@@ -171,14 +171,14 @@ run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
 	cd $(ZKSYNC_PROVER_HOME) && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
+		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420 \
 		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
 
 run-prover-prover: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
+		zk f env FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
 		cargo run --features "gpu" --release --bin zksync_prover_fri
 
 run-prover-compressor: $(ZKSYNC_PROVER_HOME)

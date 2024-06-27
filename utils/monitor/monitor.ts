@@ -3,9 +3,28 @@ import { Wallet, Provider, utils } from "zksync-ethers";
 import * as ethers from "ethers";
 import { env } from "process";
 
+// ################ CONFIG ################
+import config from "./config.json";
+interface Account {
+    addr: string;
+    descr?: string;
+}
+
+interface Config {
+    slack_webhook_url: string;
+    rpc_url: {
+        l1: string;
+        l2: string;
+    };
+    accounts: Account[];
+    sleep_ms: number;
+}
+
+const CFG = config as Config;
+// ################ CONFIG ################
+
 // ################ SLACK ################
-const url = process.env.SLACK_WEBHOOK_URL;
-const slack = new IncomingWebhook(url!);
+const slack = new IncomingWebhook(CFG.slack_webhook_url);
 
 const log = async (msg: string) => {
     slack.send({
@@ -15,17 +34,10 @@ const log = async (msg: string) => {
 // ################ SLACK ################
 
 // ################ VARIABLES ################
-const L1_RPC_ENDPOINT = env.L1_RPC_URL || "http://127.0.0.1:8545";
-const L2_RPC_ENDPOINT = env.L2_RPC_URL || "http://127.0.0.1:3050";
-console.log(L1_RPC_ENDPOINT);
-console.log(L2_RPC_ENDPOINT);
+const SLEEP_MS = CFG.sleep_ms;
 
-const SLEEP_MS = Number(env.SLEEP_MS) || 10000;
-
-const L1_ADDR = env.L1_ADDR || "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049";
-
-const l1provider = new ethers.providers.JsonRpcProvider(L1_RPC_ENDPOINT);
-const l2provider = new Provider(L2_RPC_ENDPOINT);
+const l1provider = new ethers.providers.JsonRpcProvider(CFG.rpc_url.l1);
+const l2provider = new Provider(CFG.rpc_url.l2);
 // ################ VARIABLES ################
 
 
@@ -67,35 +79,45 @@ const checkBlock = async () => {
     }
 }
 
-const checkBalance = async (addr: string) => {
-    let THRESHOLD = [0.5, 2, 5, 10];
+const checkBalance = async (accounts: Account[]) => {
 
-    let lastBalance = Number(ethers.utils.formatEther(await l1provider.getBalance(addr)));
+    let lastBalance = Number[accounts.length];
+
+    for (let i = 0; i < accounts.length; i++) {
+        lastBalance[i] = Number(ethers.utils.formatEther(await l1provider.getBalance(accounts[i].addr)));
+    }
+
     while (true) {
 
-        let balance = Number(ethers.utils.formatEther(await l1provider.getBalance(addr)));
-
-        for (let i = 0; i < THRESHOLD.length; i++) {
-            if (balance < THRESHOLD[i] && lastBalance >= THRESHOLD[i]) {
-                await log(`Balance of ${addr} is: ${balance}`);
-                break;
-            }
-            else if (balance >= THRESHOLD[i] && lastBalance < THRESHOLD[i]) {
-                await log(`Balance of ${addr} increased to: ${balance}`);
-                break;
-            }
+        for (let i = 0; i < accounts.length; i++) {
+            lastBalance[i] = sendBalanceMsg(accounts[i], lastBalance[i]);
         }
-
-        lastBalance = balance;
 
         await Bun.sleep(SLEEP_MS);
     }
 }
+
+const sendBalanceMsg = async (account: Account, lastBalance: number) => {
+    let THRESHOLD = [0.5, 2, 5, 10];
+    let balance = Number(ethers.utils.formatEther(await l1provider.getBalance(account.addr)));
+    for (let i = 0; i < THRESHOLD.length; i++) {
+        if (balance < THRESHOLD[i] && lastBalance >= THRESHOLD[i]) {
+            await log(`${account.addr} (${account.descr}) \nBalance decreased: ${balance} \nExplorer: https://explorer.sepolia.shyft.lambdaclass.com/address/${account.addr}`);
+            break;
+        }
+        else if (balance >= THRESHOLD[i] && lastBalance < THRESHOLD[i]) {
+            await log(`${account.addr} (${account.descr}) \nBalance increased: ${balance} \nExplorer: https://explorer.sepolia.shyft.lambdaclass.com/address/${account.addr}`);
+            break;
+        }
+    }
+    return balance
+}
 // ################ CHECKERS ################
 
 async function main() {
-    await log("The monitor service is up and running")
-    let p1 = checkBalance(L1_ADDR);
+    await log(`The monitor service is up and running, monitoring: ${CFG.rpc_url.l2}`)
+
+    let p1 = checkBalance(CFG.accounts);
 
     let p2 = checkBlock();
 

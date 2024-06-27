@@ -26,9 +26,19 @@ ZKSYNC_ENV=
 # General
 
 deps:
-	sudo apt install -y moreutils wget tmux
+	sudo apt install -y moreutils wget curl tmux jq
+	# yq
 	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
 	sudo chmod +x /usr/bin/yq
+	# Node.js and yarn
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+	nvm install 20
+	corepack enable
+	echo 'Y' | yarn --version
+	# Rust
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+	curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+	cargo-binstall -y sqlx-cli --version 0.7.3
 
 down:
 	tmux kill-server || exit 0

@@ -1,0 +1,24 @@
+[Unit]
+Description=monitor
+# start the app after the network is available
+After=network.target
+
+[Service]
+# usually you'll use 'simple'
+# one of https://www.freedesktop.org/software/systemd/man/systemd.service.html#Type=
+Type=simple
+# which user to use when starting the app
+User=admin
+# path to your application's root directory
+WorkingDirectory=/home/admin/zksync_stack/utils/monitor
+# the command to start the app
+# requires absolute paths
+EnvironmentFile=/home/admin/zksync_stack/utils/monitor/.env
+ExecStart=/bin/bash -c '/home/admin/.bun/bin/bun i && /home/admin/.bun/bin/bun run monitor.ts'
+# restart policy
+# one of {no|on-success|on-failure|on-abnormal|on-watchdog|on-abort|always}
+Restart=always
+
+[Install]
+# start the app automatically
+WantedBy=multi-user.target

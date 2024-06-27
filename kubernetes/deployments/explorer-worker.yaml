@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: explorer-worker
+  template:
+    metadata:
+      labels:
+        app: explorer-worker
+    spec:
+      containers:
+      - name: explorer-worker
+        image: matterlabs/block-explorer-worker
+        ports:
+        - containerPort: 3001

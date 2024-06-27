@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-node
+  template:
+    metadata:
+      labels:
+        app: external-node
+    spec:
+      containers:
+      - name: external-node
+        image: matterlabs/external-node:v24.7.0-alpha-linux-amd64
+        ports:
+        - containerPort: 3072

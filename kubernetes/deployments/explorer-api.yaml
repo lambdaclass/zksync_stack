@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: explorer-api
+  template:
+    metadata:
+      labels:
+        app: explorer-api
+    spec:
+      containers:
+      - name: explorer-api
+        image: matterlabs/block-explorer-api
+        ports:
+        - containerPort: 3020

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-data-fetcher-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: explorer-data-fetcher
+  template:
+    metadata:
+      labels:
+        app: explorer-data-fetcher
+    spec:
+      containers:
+      - name: explorer-data-fetcher
+        image: matterlabs/block-explorer-data-fetcher
+        ports:
+        - containerPort: 3040

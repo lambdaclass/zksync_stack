@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contract-verifier-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contract-verifier
+  template:
+    metadata:
+      labels:
+        app: contract-verifier
+    spec:
+      containers:
+      - name: contract-verifier
+        image: matterlabs/contract-verifier
+        ports:
+        - containerPort: 3070

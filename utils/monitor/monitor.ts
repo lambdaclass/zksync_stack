@@ -2,9 +2,23 @@ import { IncomingWebhook } from "@slack/webhook";
 import { Wallet, Provider, utils } from "zksync-ethers";
 import * as ethers from "ethers";
 import { env } from "process";
+import { parseArgs } from "util";
+
+const values = parseArgs({
+    args: Bun.argv,
+    options: {
+        configFile: {
+            type: 'string',
+        },
+    },
+    strict: true,
+    allowPositionals: true,
+}).values;
+
 
 // ################ CONFIG ################
-import config from "./config.json";
+let configFile = values.configFile || "./config.json"
+const config = require(configFile);
 interface Account {
     addr: string;
     descr?: string;
@@ -12,12 +26,13 @@ interface Account {
 
 interface Config {
     slack_webhook_url: string;
+    explorer_url?: string;
     rpc_url: {
         l1: string;
         l2: string;
     };
     accounts: Account[];
-    sleep_ms: number;
+    sleep_minutes: number;
 }
 
 const CFG = config as Config;
@@ -34,7 +49,9 @@ const log = async (msg: string) => {
 // ################ SLACK ################
 
 // ################ VARIABLES ################
-const SLEEP_MS = CFG.sleep_ms;
+const sleep_ms = CFG.sleep_minutes * 60e3 || 1 * 60e3;
+console.log(sleep_ms);
+const explorerUrl = CFG.explorer_url || "explorerUrlPlaceholder";
 
 const l1provider = new ethers.providers.JsonRpcProvider(CFG.rpc_url.l1);
 const l2provider = new Provider(CFG.rpc_url.l2);
@@ -56,7 +73,7 @@ const checkBlock = async () => {
         }
     }
 
-    await Bun.sleep(SLEEP_MS);
+    await Bun.sleep(sleep_ms);
 
     while (true) {
         let block = await l2provider.getBlockNumber();
@@ -75,25 +92,27 @@ const checkBlock = async () => {
         }
 
         prevBlock = block
-        await Bun.sleep(SLEEP_MS);
+        await Bun.sleep(sleep_ms);
     }
 }
 
 const checkBalance = async (accounts: Account[]) => {
 
-    let lastBalance = Number[accounts.length];
+    let lastBalance: number[] = new Array(accounts.length).fill(0);
+    console.log(accounts.length);
+
 
     for (let i = 0; i < accounts.length; i++) {
         lastBalance[i] = Number(ethers.utils.formatEther(await l1provider.getBalance(accounts[i].addr)));
     }
 
     while (true) {
-
+        console.log(lastBalance);
         for (let i = 0; i < accounts.length; i++) {
-            lastBalance[i] = sendBalanceMsg(accounts[i], lastBalance[i]);
+            lastBalance[i] = await sendBalanceMsg(accounts[i], lastBalance[i]);
         }
 
-        await Bun.sleep(SLEEP_MS);
+        await Bun.sleep(sleep_ms);
     }
 }
 
@@ -102,11 +121,11 @@ const sendBalanceMsg = async (account: Account, lastBalance: number) => {
     let balance = Number(ethers.utils.formatEther(await l1provider.getBalance(account.addr)));
     for (let i = 0; i < THRESHOLD.length; i++) {
         if (balance < THRESHOLD[i] && lastBalance >= THRESHOLD[i]) {
-            await log(`${account.addr} (${account.descr}) \nBalance decreased: ${balance} \nExplorer: https://explorer.sepolia.shyft.lambdaclass.com/address/${account.addr}`);
+            await log(`${account.addr} (${account.descr}) \nBalance decreased: ${balance} \nExplorer: ${explorerUrl}/address/${account.addr}`);
             break;
         }
         else if (balance >= THRESHOLD[i] && lastBalance < THRESHOLD[i]) {
-            await log(`${account.addr} (${account.descr}) \nBalance increased: ${balance} \nExplorer: https://explorer.sepolia.shyft.lambdaclass.com/address/${account.addr}`);
+            await log(`${account.addr} (${account.descr}) \nBalance increased: ${balance} \nExplorer: ${explorerUrl}/address/${account.addr}`);
             break;
         }
     }
@@ -115,13 +134,13 @@ const sendBalanceMsg = async (account: Account, lastBalance: number) => {
 // ################ CHECKERS ################
 
 async function main() {
-    await log(`The monitor service is up and running, monitoring: ${CFG.rpc_url.l2}`)
+    //await log(`The monitor service is up and running, monitoring: ${CFG.rpc_url.l2}`)
 
     let p1 = checkBalance(CFG.accounts);
 
-    let p2 = checkBlock();
+    //let p2 = checkBlock();
 
-    await Promise.all([p1, p2]);
+    await Promise.all([p1]);
 }
 
 main()

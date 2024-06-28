@@ -49,8 +49,10 @@ download-server: deps
 	git -C ${ZKSYNC_SERVER_HOME} pull origin ${SERVER_COMMIT}:${SERVER_COMMIT} --ff-only 2>/dev/null || git clone ${SERVER_REPO} ${ZKSYNC_SERVER_HOME}
 	git -C ${ZKSYNC_SERVER_HOME} checkout ${SERVER_COMMIT}
 	cp diffs/observability.diff ${ZKSYNC_SERVER_HOME}
+	cp diffs/era-server/contract-verifier.diff ${ZKSYNC_SERVER_HOME}
 	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
+	git -C ${ZKSYNC_SERVER_HOME} apply contract-verifier.diff || exit 0
 
 download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
@@ -141,6 +143,12 @@ run-server: $(ZKSYNC_SERVER_HOME)
 		cd $(ZKSYNC_SERVER_HOME) && \
 		zk server --components=api,eth,tree,state_keeper,housekeeper,commitment_generator,proof_data_handler
 
+run-contract-verifier: export ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
+run-contract-verifier: $(ZKSYNC_SERVER_HOME)
+	cd $(ZKSYNC_SERVER_HOME)/core/bin/contract-verifier && \
+		PATH=$(ZKSYNC_SERVER_HOME)/bin:$(PATH) \
+		zk f cargo run --release --bin zksync_contract_verifier
+
 run-explorer: export DATABASE_HOST=127.0.0.1
 run-explorer: export DATABASE_USER=postgres
 run-explorer: export DATABASE_PASSWORD=notsecurepassword
@@ -197,6 +205,9 @@ server:
 	tmux kill-session -t server 2>/dev/null || exit 0
 	tmux new -d -s server
 	tmux send-keys -t server "make setup-server run-server" Enter
+	sleep 5
+	tmux new -d -s contract-verifier
+	tmux send-keys -t contract-verifier "make run-contract-verifier"
 
 explorer:
 	tmux kill-session -t explorer 2>/dev/null || exit 0

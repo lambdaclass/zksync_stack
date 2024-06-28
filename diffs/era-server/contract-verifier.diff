@@ -1,0 +1,12 @@
+diff --git a/core/node/contract_verification_server/src/api_impl.rs b/core/node/contract_verification_server/src/api_impl.rs
+index b8111e98a..d3a87d717 100644
+--- a/core/node/contract_verification_server/src/api_impl.rs
++++ b/core/node/contract_verification_server/src/api_impl.rs
+@@ -14,6 +14,7 @@ use super::{api_decl::RestApi, metrics::METRICS};
+ fn ok_json(data: impl Serialize) -> Response<String> {
+     Response::builder()
+         .status(axum::http::StatusCode::OK)
++        .header("content-type", "application/json")
+         .body(serde_json::to_string(&data).expect("Failed to serialize"))
+         .unwrap()
+ }

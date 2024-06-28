@@ -130,7 +130,7 @@ setup-prover: download-prover
 		export PATH=${ZKSYNC_PROVER_HOME}/bin:$(PATH) && \
 		zk && \
 		zk env ${ZKSYNC_ENV} && \
-		zk f cargo run --features gpu --release --bin key_generator -- --generate-sk-gpu all --recompute-if-missing
+		zk f cargo run --features gpu --release --bin key_generator -- generate-sk-gpu all --recompute-if-missing
 		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
 
 # Run

@@ -53,6 +53,19 @@ download-server: deps
 	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
 	git -C ${ZKSYNC_SERVER_HOME} apply contract-verifier.diff || exit 0
+	@echo "Downloading some compiler versions for contract verifier"
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc https://github.com/matter-labs/zksolc-bin/releases/download/v1.5.0/zksolc-linux-amd64-musl-v1.5.0
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0/zkvyper https://github.com/matter-labs/zkvyper-bin/releases/download/v1.5.0/zkvyper-linux-amd64-musl-v1.5.0
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0/zkvyper
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0/vyper https://github.com/vyperlang/vyper/releases/download/v0.4.0/vyper.0.4.0+commit.e9db8d9f.linux
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0/vyper
 
 download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
@@ -201,7 +214,7 @@ up-no-prover: server explorer portal
 
 up: up-no-prover prover-all
 
-server:
+server: download-server
 	tmux kill-session -t server 2>/dev/null || exit 0
 	tmux new -d -s server
 	tmux send-keys -t server "make setup-server run-server" Enter

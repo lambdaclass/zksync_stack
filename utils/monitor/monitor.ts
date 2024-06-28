@@ -178,7 +178,7 @@ const sendBalanceMsg = async (account: Account, lastBalance: number) => {
 // ################ CHECKERS ################
 
 async function main() {
-    //await log(`The monitor service is up and running, monitoring: ${CFG.rpc_url.l2}`)
+    await log(`The monitor service is up and running, monitoring: ${CFG.rpc_url.l2}`)
 
     let p1 = checkBalance(CFG.accounts);
 

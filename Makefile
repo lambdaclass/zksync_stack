@@ -26,7 +26,7 @@ ZKSYNC_ENV=
 # General
 
 deps:
-	sudo apt update && sudo apt install -y moreutils wget curl tmux jq pkg-config clang
+	sudo apt update && sudo apt install -y moreutils wget curl tmux jq pkg-config clang cmake
 	# yq
 	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
 	sudo chmod +x /usr/bin/yq

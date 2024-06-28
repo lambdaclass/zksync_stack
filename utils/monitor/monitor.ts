@@ -32,7 +32,8 @@ interface Config {
         l2: string;
     };
     accounts: Account[];
-    sleep_minutes: number;
+    sleep_checkBalance_minutes: number;
+    sleep_checkBlock_ms: number;
 }
 
 const CFG = config as Config;
@@ -49,8 +50,9 @@ const log = async (msg: string) => {
 // ################ SLACK ################
 
 // ################ VARIABLES ################
-const sleep_ms = CFG.sleep_minutes * 60e3 || 1 * 60e3;
-console.log(sleep_ms);
+const sleep_checkBalance_minutes = CFG.sleep_checkBalance_minutes * 60e3 || 1 * 60e3;
+const sleep_checkBlock_ms = CFG.sleep_checkBlock_ms || 10e3;
+
 const explorerUrl = CFG.explorer_url || "explorerUrlPlaceholder";
 
 const l1provider = new ethers.providers.JsonRpcProvider(CFG.rpc_url.l1);
@@ -60,11 +62,12 @@ const l2provider = new Provider(CFG.rpc_url.l2);
 
 // ################ CHECKERS ################
 const checkBlock = async () => {
-    let prevBlock = 0
-    let alive = false
+    let prevBlock = 0;
+    let alive = false;
 
     while (true) {
         try {
+            await Bun.sleep(sleep_checkBlock_ms);
             const block = await l2provider.getBlockNumber();
             prevBlock = Number(block);
             break;
@@ -73,59 +76,100 @@ const checkBlock = async () => {
         }
     }
 
-    await Bun.sleep(sleep_ms);
+    await Bun.sleep(sleep_checkBlock_ms);
 
     while (true) {
-        let block = await l2provider.getBlockNumber();
+        try {
+            await Bun.sleep(sleep_checkBlock_ms);
+            let block = await l2provider.getBlockNumber();
+            if ((block > prevBlock) && !alive) {
+                alive = true;
+            } else if ((block == prevBlock) && alive) {
+                await log(
+                    `Blockchain not advancing\n` +
+                    `Currently, it is normal behavior. The blockchain was stopped and now it received some transactions\n` +
+                    `Explorer: ${explorerUrl}/block/${block}`);
+                alive = false;
+            }
+            prevBlock = block;
 
-        // The +1 handles the case in which the 
-        // block = n and prevBlock = n-1
-        // If using a sleep period of 10[s] the block should be much greater than prevBlock
-        // not just a difference of 1 block. Also, some test blockchains create a new block after 
-        // l1provider.getBlockNumber();
-        if ((block > prevBlock + 1) && !alive) {
-            await log("Node is up")
-            alive = true
-        } else if ((block == prevBlock) && alive) {
-            await log(`Not advancing; block: ${block} // prevBlock: ${prevBlock}`);
-            alive = false
+        } catch (error) {
+            console.error(`Error fetching block number`);
         }
-
-        prevBlock = block
-        await Bun.sleep(sleep_ms);
     }
 }
 
+const checkConnection = async () => {
+    const retries = 5;
+    let alive = false;
+    let sendmsg = true;
+
+    while (true) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                await Bun.sleep(2e3);
+                (await l2provider.getNetwork()).chainId;
+                alive = true;
+                sendmsg = true;
+                break;
+            } catch (e) {
+                console.error(`Error fetching chainId`);
+            }
+        }
+
+        if (!alive && sendmsg) {
+            log(
+                `Unable to connect after ${retries}\n` +
+                `Blockchain seems to be down, URL: ${CFG.rpc_url.l2}`
+            );
+            sendmsg = false;
+        }
+    }
+};
+
 const checkBalance = async (accounts: Account[]) => {
-
     let lastBalance: number[] = new Array(accounts.length).fill(0);
-    console.log(accounts.length);
-
 
     for (let i = 0; i < accounts.length; i++) {
         lastBalance[i] = Number(ethers.utils.formatEther(await l1provider.getBalance(accounts[i].addr)));
     }
 
     while (true) {
-        console.log(lastBalance);
         for (let i = 0; i < accounts.length; i++) {
             lastBalance[i] = await sendBalanceMsg(accounts[i], lastBalance[i]);
         }
 
-        await Bun.sleep(sleep_ms);
+        await Bun.sleep(sleep_checkBalance_minutes);
     }
 }
 
 const sendBalanceMsg = async (account: Account, lastBalance: number) => {
     let THRESHOLD = [0.5, 2, 5, 10];
-    let balance = Number(ethers.utils.formatEther(await l1provider.getBalance(account.addr)));
+    let balance = 0;
+
+    await l1provider.getBalance(account.addr)
+        .then((b) => {
+            balance = Number(ethers.utils.formatEther(b));
+        })
+        .catch((e) => {
+            console.error(`Error fetching  balance from L1 \n${e}`);
+            return
+        });
+
+    console.log(`Balance of ${account.addr}: ${balance}`);
     for (let i = 0; i < THRESHOLD.length; i++) {
         if (balance < THRESHOLD[i] && lastBalance >= THRESHOLD[i]) {
-            await log(`${account.addr} (${account.descr}) \nBalance decreased: ${balance} \nExplorer: ${explorerUrl}/address/${account.addr}`);
+            await log(
+                `${account.addr} (${account.descr})\n` +
+                `Balance decreased: ${balance}\n` +
+                `Explorer: ${explorerUrl}/address/${account.addr}`);
             break;
         }
         else if (balance >= THRESHOLD[i] && lastBalance < THRESHOLD[i]) {
-            await log(`${account.addr} (${account.descr}) \nBalance increased: ${balance} \nExplorer: ${explorerUrl}/address/${account.addr}`);
+            await log(
+                `${account.addr} (${account.descr})\n` +
+                `Balance increased: ${balance}\n` +
+                `Explorer: ${explorerUrl}/address/${account.addr}`);
             break;
         }
     }
@@ -138,9 +182,11 @@ async function main() {
 
     let p1 = checkBalance(CFG.accounts);
 
-    //let p2 = checkBlock();
+    let p2 = checkBlock();
 
-    await Promise.all([p1]);
+    let p3 = checkConnection();
+
+    await Promise.all([p1, p2, p3]);
 }
 
 main()

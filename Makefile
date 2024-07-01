@@ -158,7 +158,7 @@ run-explorer: export DATABASE_PASSWORD=notsecurepassword
 run-explorer: export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
 run-explorer: export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
 run-explorer: $(ZKSYNC_EXPLORER_HOME)
-	cd $(ZKSYNC_EXPLORER_HOME) ; npm run dev
+	cd $(ZKSYNC_EXPLORER_HOME) ; npm run start
 
 run-portal: $(ZKSYNC_PORTAL_HOME)
 	cd $(ZKSYNC_PORTAL_HOME) ; npx serve .output/public -p 3002

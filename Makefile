@@ -23,11 +23,32 @@ ZKSYNC_GOVERNOR_PRIVATE_KEY=
 ZKSYNC_ENV=
 
 
+# Determine the operating system
+UNAME := $(shell uname)
+
+# Define variables for package managers and commands
+ifeq ($(UNAME), Darwin)  # macOS
+    DEPS_TARGET := macos-deps
+	CHOWN_CMD := chown -R $(USER): $(ZKSYNC_SERVER_HOME)
+
+else  # Linux assumed
+    DEPS_TARGET := linux-deps
+	CHOWN_CMD := chown -R $(USER):$(USER) $(ZKSYNC_SERVER_HOME)
+endif
+
+
 # General
 
-deps:
-	sudo apt update && sudo apt install -y moreutils wget curl tmux jq pkg-config clang cmake
-	# yq
+deps: $(DEPS_TARGET)
+
+# macOS dependencies
+macos-deps:
+	brew install moreutils wget tmux
+	brew install yq
+
+# Linux dependencies
+linux-deps:
+	sudo apt install -y moreutils wget tmux
 	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
 	sudo chmod +x /usr/bin/yq
 	# Node.js and yarn
@@ -45,8 +66,8 @@ down:
 	rm -rf /tmp/tmux*
 
 clean:
-	ZKSYNC_HOME=${ZKSYNC_SERVER_HOME} zk clean --all
-	ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} zk clean --all
+	@if [ -d "$(ZKSYNC_SERVER_HOME)" ]; then ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME) zk clean --all; fi 
+	@if [ -d "$(ZKSYNC_PROVER_HOME)" ]; then ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) zk clean --all; fi 
 	docker rm -f $(shell docker ps -qa) 2>/dev/null || exit 0
 
 prune: down
@@ -67,7 +88,7 @@ download-server: deps
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0
-	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0
 	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc https://github.com/matter-labs/zksolc-bin/releases/download/v1.5.0/zksolc-linux-amd64-musl-v1.5.0
 	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc
 	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux
@@ -83,7 +104,7 @@ download-explorer: deps
 	cp custom_configs/explorer.json ${ZKSYNC_EXPLORER_HOME}/packages/app/src/configs/hyperchain.config.json
 	cp diffs/explorer/explorer.diff ${ZKSYNC_EXPLORER_HOME}
 	cp -r diffs/explorer/maintenance ${ZKSYNC_EXPLORER_HOME}
-	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0	
+	git -C ${ZKSYNC_EXPLORER_HOME} apply explorer.diff || exit 0
 
 download-portal: deps
 	git -C ${ZKSYNC_PORTAL_HOME} pull origin ${PORTAL_COMMIT}:${PORTAL_COMMIT} --ff-only 2>/dev/null || git clone ${PORTAL_REPO} ${ZKSYNC_PORTAL_HOME}
@@ -112,7 +133,7 @@ setup-server: export DEPLOYER_PRIVATE_KEY=${ZKSYNC_DEPLOYER_PRIVATE_KEY}
 setup-server: export GOVERNANCE_PRIVATE_KEY=${ZKSYNC_GOVERNANCE_PRIVATE_KEY}
 setup-server: export GOVERNOR_PRIVATE_KEY=${ZKSYNC_GOVERNOR_PRIVATE_KEY}
 setup-server: download-server
-	sudo chown -R $(USER):$(USER) $(ZKSYNC_SERVER_HOME)
+	sudo $(CHOWN_CMD)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
 		cd $(ZKSYNC_SERVER_HOME) && \
 		./bin/zk && \

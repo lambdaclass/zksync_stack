@@ -165,7 +165,7 @@ run-prover-witness-generators: $(ZKSYNC_PROVER_HOME)
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		API_PROMETHEUS_LISTENER_PORT=3116 \
-		zk f cargo run --release --bin zksync_witness_generator -- --all-rounds
+		zk f cargo run --release --bin zksync_witness_generator -- --all_rounds
 
 run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
 	cd $(ZKSYNC_PROVER_HOME) && \

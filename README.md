@@ -158,7 +158,7 @@ The `config.json` file accepts the following elements. All of them are required 
     - `governor_private_key` (**string**): Governor private key
 - `portal`:
     - `web_url` (**string**): The URL for the portal web
-    - `wallet_connect_apikey` (**string**): API key for wallet connect. It can be an empty string
+    - `wallet_connect_apikey` (**string**): API key for wallet connect
     - `ankr_token` (**string**): API key for ANKR. It can be an empty string
     - `extra_tokens` (**list**): List of extra ERC20 tokens that will always appear on the portal. It can be an empty list
         - `address` (**string | optional**): L2 address of the token

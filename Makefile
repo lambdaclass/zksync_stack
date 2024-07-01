@@ -145,7 +145,7 @@ setup-prover: download-prover
 		export PATH=${ZKSYNC_PROVER_HOME}/bin:$(PATH) && \
 		zk && \
 		zk env ${ZKSYNC_ENV} && \
-		zk f cargo run --features gpu --release --bin key_generator --generate-sk-gpu all --recompute-if-missing
+		zk f cargo run --features gpu --release --bin key_generator -- generate-sk-gpu all --recompute-if-missing
 		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
 
 # Run
@@ -176,34 +176,34 @@ run-portal: $(ZKSYNC_PORTAL_HOME)
 ## Prover
 
 run-prover-gateway: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		zk f cargo run --release --bin zksync_prover_fri_gateway
 
 run-prover-witness-generators: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		API_PROMETHEUS_LISTENER_PORT=3116
-		zk f cargo run --release --bin zksync_witness_generator -- --all-rounds
+		API_PROMETHEUS_LISTENER_PORT=3116 \
+		zk f cargo run --release --bin zksync_witness_generator -- --all_rounds
 
 run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
 	cd $(ZKSYNC_PROVER_HOME) && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
-		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
+		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420 \
+		zk f cargo run --release --bin zksync_witness_vector_generator
 
 run-prover-prover: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
+		zk f env FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
 		cargo run --features "gpu" --release --bin zksync_prover_fri
 
 run-prover-compressor: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		zk f cargo run --release --bin zksync_proof_fri_compressor

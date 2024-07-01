@@ -1,6 +1,7 @@
 {
-    "dependencies": {
-        "ethers": "~5.7.0",
-        "zksync-ethers": "5.9.0"
-    }
+  "dependencies": {
+    "cac": "^6.7.14",
+    "ethers": "~5.7.0",
+    "zksync-ethers": "5.9.0"
+  }
 }

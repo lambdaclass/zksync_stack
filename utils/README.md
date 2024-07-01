@@ -75,5 +75,5 @@ This command will provide usage instructions and examples.
 
 To create an alias for easier use within the current shell session, ensure you are in the `utils/` directory:
 ```sh
-alias cli="bun run cli.ts"
+alias cli="bun run $(pwd)/cli.ts"
 ```

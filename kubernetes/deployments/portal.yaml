@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-deployment
+  labels:
+    app: portal
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: portal
+  template:
+    metadata:
+      labels:
+        app: portal
+    spec:
+      containers:
+      - name: portal
+        image: portal:latest
+        ports:
+        - containerPort: 3000

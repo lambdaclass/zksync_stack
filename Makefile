@@ -1,15 +1,5 @@
 .PHONY: deps down clean prune download-server download-explorer download-portal download-prover setup-all setup-all-no-prover setup-server setup-explorer setup-portal setup-prover run-server run-explorer run-portal run-prover-gateway run-prover-witness-generator run-prover-witness-vector-gen run-prover-prover run-prover-compressor run-prover-all up-no-prover up server explorer portal prover-gateway prover-witness-generator prover-witness-vector-gen prover-prover prover-compressor prover-all
 
-# Determine the operating system
-UNAME := $(shell uname)
-
-# Define variables for package managers and commands
-ifeq ($(UNAME), Darwin)  # macOS
-    DEPS_TARGET := macos-deps
-else  # Linux assumed
-    DEPS_TARGET := linux-deps
-endif
-
 # Homes
 ZKSYNC_SERVER_HOME=$(shell pwd)/zksync-era-server
 ZKSYNC_PROVER_HOME=$(shell pwd)/zksync-era-prover
@@ -26,11 +16,25 @@ PROVER_COMMIT=prover-v14.5.0
 EXPLORER_COMMIT=main
 PORTAL_COMMIT=35b9f7cd21765224f503b9a2a5e3d432c39db6dd
 # Private keys
-ZKSYNC_DEPLOYER_PRIVATE_KEY=""
-ZKSYNC_GOVERNANCE_PRIVATE_KEY=""
-ZKSYNC_GOVERNOR_PRIVATE_KEY=""
+ZKSYNC_DEPLOYER_PRIVATE_KEY="0x27593fea79697e947890ecbecce7901b0008345e5d7259710d0dd5e500d040be"
+ZKSYNC_GOVERNANCE_PRIVATE_KEY="0x27593fea79697e947890ecbecce7901b0008345e5d7259710d0dd5e500d040be"
+ZKSYNC_GOVERNOR_PRIVATE_KEY="0x27593fea79697e947890ecbecce7901b0008345e5d7259710d0dd5e500d040be"
 # Envs
-ZKSYNC_ENV=
+ZKSYNC_ENV=shyft
+
+
+# Determine the operating system
+UNAME := $(shell uname)
+
+# Define variables for package managers and commands
+ifeq ($(UNAME), Darwin)  # macOS
+    DEPS_TARGET := macos-deps
+	CHOWN_CMD := chown -R $(USER): $(ZKSYNC_SERVER_HOME)
+
+else  # Linux assumed
+    DEPS_TARGET := linux-deps
+	CHOWN_CMD := chown -R $(USER):$(USER) $(ZKSYNC_SERVER_HOME)
+endif
 
 
 # General
@@ -84,7 +88,7 @@ download-server: deps
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0
-	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0
 	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc https://github.com/matter-labs/zksolc-bin/releases/download/v1.5.0/zksolc-linux-amd64-musl-v1.5.0
 	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc
 	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux
@@ -129,7 +133,7 @@ setup-server: export DEPLOYER_PRIVATE_KEY=${ZKSYNC_DEPLOYER_PRIVATE_KEY}
 setup-server: export GOVERNANCE_PRIVATE_KEY=${ZKSYNC_GOVERNANCE_PRIVATE_KEY}
 setup-server: export GOVERNOR_PRIVATE_KEY=${ZKSYNC_GOVERNOR_PRIVATE_KEY}
 setup-server: download-server
-	sudo chown -R $(USER):$(USER) $(ZKSYNC_SERVER_HOME)
+	sudo $(CHOWN_CMD)
 	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
 		cd $(ZKSYNC_SERVER_HOME) && \
 		./bin/zk && \

@@ -121,6 +121,7 @@ setup-explorer: download-explorer
 ## Portal
 
 setup-portal: download-portal
+	echo 'telemetry.enabled=false' > ~/.nuxtrc
 	cd $(ZKSYNC_PORTAL_HOME) ; \
 		npm install && \
 		npm run generate:node:hyperchain

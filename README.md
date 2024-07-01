@@ -1,5 +1,17 @@
 # zkSync Stack
 
+## Requirements
+
+- Docker
+- Rust
+- Node.js + yarn
+
+If you want to simplify the installation of dependencies, running the following command will install almost all of them, except from Docker:
+
+```
+make deps
+```
+
 ## Before running the stack (configuration)
 
 Before running the stack we need to set up the configuration files. To do this, create a `config.json` file at the root of the project and populate it with your config, an example can be found on `config.example.json`. Then, run the following command:

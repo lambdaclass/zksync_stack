@@ -12,6 +12,8 @@ If you want to simplify the installation of dependencies, running the following 
 make deps
 ```
 
+If you are facing problems with this, please refer to the [zksync-era repo guide](https://github.com/matter-labs/zksync-era/blob/core-v24.7.0/docs/guides/setup-dev.md)
+
 ## Before running the stack (configuration)
 
 Before running the stack we need to set up the configuration files. To do this, create a `config.json` file at the root of the project and populate it with your config, an example can be found on `config.example.json`. Then, run the following command:

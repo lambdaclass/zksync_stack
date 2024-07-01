@@ -1,5 +1,19 @@
 # zkSync Stack
 
+## Requirements
+
+- Docker
+- Rust
+- Node.js + yarn
+
+If you want to simplify the installation of dependencies, running the following command will install almost all of them, except from Docker:
+
+```
+make deps
+```
+
+If you are facing problems with this, please refer to the [zksync-era repo guide](https://github.com/matter-labs/zksync-era/blob/core-v24.7.0/docs/guides/setup-dev.md)
+
 ## Before running the stack (configuration)
 
 Before running the stack we need to set up the configuration files. To do this, create a `config.json` file at the root of the project and populate it with your config, an example can be found on `config.example.json`. Then, run the following command:
@@ -144,7 +158,7 @@ The `config.json` file accepts the following elements. All of them are required 
     - `governor_private_key` (**string**): Governor private key
 - `portal`:
     - `web_url` (**string**): The URL for the portal web
-    - `wallet_connect_apikey` (**string**): API key for wallet connect. It can be an empty string
+    - `wallet_connect_apikey` (**string**): API key for wallet connect
     - `ankr_token` (**string**): API key for ANKR. It can be an empty string
     - `extra_tokens` (**list**): List of extra ERC20 tokens that will always appear on the portal. It can be an empty list
         - `address` (**string | optional**): L2 address of the token

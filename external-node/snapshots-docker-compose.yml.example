@@ -1,0 +1,23 @@
+services:
+  snapshot_creator:
+    image: "matterlabs/snapshots-creator"
+    volumes:
+      - ./key.json:/key.json
+    env_file: ../zksync-era-core/etc/env/target/<YOUR_ENV_FILE>.env
+    network_mode: "host"   
+    environment:
+      SNAPSHOTS_OBJECT_STORE_MODE: GCSWithCredentialFile
+      SNAPSHOTS_OBJECT_STORE_BUCKET_BASE_URL: # Just write down the <THIS STRING> specified in the URL: https://console.cloud.google.com/storage/browser/<THIS STRING>
+      SNAPSHOTS_OBJECT_STORE_GCS_CREDENTIAL_FILE_PATH: /key.json
+
+# Following: https://gist.github.com/kizzx2/782b500a81ce46b889903b1f80353f21    
+  restarter:
+    image: docker:cli
+    environment:
+      SERVICE_TO_RST: snapshot_creator
+    volumes: 
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ## It restarts the snapshot_creator service every:
+    ## 43200[seconds] == 12[hours]
+    command: /bin/sh -c "while true; do sleep 43200; docker restart ${COMPOSE_PROJECT_NAME}-$${SERVICE_TO_RST}-1; done"
+    restart: unless-stopped

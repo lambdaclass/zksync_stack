@@ -47,6 +47,15 @@ linux-deps:
 	sudo apt install -y moreutils wget tmux
 	sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
 	sudo chmod +x /usr/bin/yq
+	# Node.js and yarn
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+	nvm install 20
+	corepack enable
+	echo 'Y' | yarn --version
+	# Rust
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+	curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+	cargo-binstall -y sqlx-cli --version 0.7.3
 
 down:
 	tmux kill-server || exit 0
@@ -67,9 +76,24 @@ download-server: deps
 	git -C ${ZKSYNC_SERVER_HOME} pull origin ${SERVER_COMMIT}:${SERVER_COMMIT} --ff-only 2>/dev/null || git clone ${SERVER_REPO} ${ZKSYNC_SERVER_HOME}
 	git -C ${ZKSYNC_SERVER_HOME} checkout ${SERVER_COMMIT}
 	cp diffs/observability.diff ${ZKSYNC_SERVER_HOME}
+	cp diffs/era-server/contract-verifier.diff ${ZKSYNC_SERVER_HOME}
 	cp custom_configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	git -C ${ZKSYNC_SERVER_HOME} apply observability.diff || exit 0
-	
+	git -C ${ZKSYNC_SERVER_HOME} apply contract-verifier.diff || exit 0
+	@echo "Downloading some compiler versions for contract verifier"
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc https://github.com/matter-labs/zksolc-bin/releases/download/v1.5.0/zksolc-linux-amd64-musl-v1.5.0
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0/zkvyper https://github.com/matter-labs/zkvyper-bin/releases/download/v1.5.0/zkvyper-linux-amd64-musl-v1.5.0
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0/zkvyper
+	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0/vyper https://github.com/vyperlang/vyper/releases/download/v0.4.0/vyper.0.4.0+commit.e9db8d9f.linux
+	chmod +x ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0/vyper
+
 download-explorer: deps
 	git -C ${ZKSYNC_EXPLORER_HOME} pull origin ${EXPLORER_COMMIT}:${EXPLORER_COMMIT} --ff-only 2>/dev/null || git clone ${EXPLORER_REPO} ${ZKSYNC_EXPLORER_HOME}
 	git -C ${ZKSYNC_EXPLORER_HOME} checkout ${EXPLORER_COMMIT}
@@ -129,13 +153,14 @@ setup-explorer: download-explorer
 ## Portal
 
 setup-portal: download-portal
+	echo 'telemetry.enabled=false' > ~/.nuxtrc
 	cd $(ZKSYNC_PORTAL_HOME) ; \
 		npm install && \
 		npm run generate:node:hyperchain
 
 ## Prover
 
-setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_CORE_HOME}/prover/vk_setup_data_generator_server_fri/data
+setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_SERVER_HOME}/prover/vk_setup_data_generator_server_fri/data
 setup-prover: download-prover
 	cp ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	cp -r ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/l2-inits ${ZKSYNC_PROVER_HOME}/etc/env
@@ -148,8 +173,8 @@ setup-prover: download-prover
 		export PATH=${ZKSYNC_PROVER_HOME}/bin:$(PATH) && \
 		zk && \
 		zk env ${ZKSYNC_ENV} && \
-		zk f cargo run --features gpu --release --bin key_generator --generate-sk-gpu all --recompute-if-missing
-		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_CORE_HOME}/etc/env/target/
+		zk f cargo run --features gpu --release --bin key_generator -- generate-sk-gpu all --recompute-if-missing
+		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
 
 # Run
 
@@ -159,11 +184,11 @@ run-server: $(ZKSYNC_SERVER_HOME)
 		cd $(ZKSYNC_SERVER_HOME) && \
 		zk server --components=api,eth,tree,state_keeper,housekeeper,commitment_generator,proof_data_handler
 
-run-contract-verification-api: export ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
-run-contract-verification-api: $(ZKSYNC_SERVER_HOME)
-	export PATH=$(ZKSYNC_HOME)/bin:$(PATH) && \
-		cd $(ZKSYNC_SERVER_HOME) && \
-		zk server --components=contract_verification_api
+run-contract-verifier: export ZKSYNC_HOME=$(ZKSYNC_SERVER_HOME)
+run-contract-verifier: $(ZKSYNC_SERVER_HOME)
+	cd $(ZKSYNC_SERVER_HOME)/core/bin/contract-verifier && \
+		PATH=$(ZKSYNC_SERVER_HOME)/bin:$(PATH) \
+		zk f cargo run --release --bin zksync_contract_verifier
 
 run-explorer: export DATABASE_HOST=127.0.0.1
 run-explorer: export DATABASE_USER=postgres
@@ -171,7 +196,7 @@ run-explorer: export DATABASE_PASSWORD=notsecurepassword
 run-explorer: export DATABASE_URL=postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer
 run-explorer: export BLOCKCHAIN_RPC_URL=http://127.0.0.1:3050
 run-explorer: $(ZKSYNC_EXPLORER_HOME)
-	cd $(ZKSYNC_EXPLORER_HOME) ; npm run dev
+	cd $(ZKSYNC_EXPLORER_HOME) ; npm run start
 
 run-portal: $(ZKSYNC_PORTAL_HOME)
 	cd $(ZKSYNC_PORTAL_HOME) ; npx serve .output/public -p 3002
@@ -179,34 +204,34 @@ run-portal: $(ZKSYNC_PORTAL_HOME)
 ## Prover
 
 run-prover-gateway: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		zk f cargo run --release --bin zksync_prover_fri_gateway
 
 run-prover-witness-generators: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		API_PROMETHEUS_LISTENER_PORT=3116
-		zk f cargo run --release --bin zksync_witness_generator -- --all-rounds
+		API_PROMETHEUS_LISTENER_PORT=3116 \
+		zk f cargo run --release --bin zksync_witness_generator -- --all_rounds
 
 run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
 	cd $(ZKSYNC_PROVER_HOME) && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420
-		zk f cargo run --release --bin zksync_witness_vector_generator -- --all-rounds
+		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420 \
+		zk f cargo run --release --bin zksync_witness_vector_generator
 
 run-prover-prover: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
-		FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
+		zk f env FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_PROVER_HOME}/prover/vk_setup_data_generator_server_fri/data \
 		cargo run --features "gpu" --release --bin zksync_prover_fri
 
 run-prover-compressor: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		zk f cargo run --release --bin zksync_proof_fri_compressor
@@ -217,10 +242,13 @@ up-no-prover: server explorer portal
 
 up: up-no-prover prover-all
 
-server:
+server: download-server
 	tmux kill-session -t server 2>/dev/null || exit 0
 	tmux new -d -s server
 	tmux send-keys -t server "make setup-server run-server" Enter
+	sleep 5
+	tmux new -d -s contract-verifier
+	tmux send-keys -t contract-verifier "make run-contract-verifier"
 
 explorer:
 	tmux kill-session -t explorer 2>/dev/null || exit 0

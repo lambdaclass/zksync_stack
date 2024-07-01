@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+        "@slack/webhook": "^7.0.2",
+        "ethers": "~5.7.0",
+        "zksync-ethers": "5.9.0"
+    }
+}

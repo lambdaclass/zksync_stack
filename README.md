@@ -147,6 +147,7 @@ The `config.json` file accepts the following elements. All of them are required 
         - `name` (**string**): The name of the L2 network
         - `chain_id` (**integer**): Chain ID of the L2 network
     - `env_name` (**string**): Name of the zkstack environment
+    - `prover` (**boolean**): Use GPU prover or skip proofs
     - `operator_private_key` (**string**): Commitment operator private key
     - `operator_commit_eth_addr` (**string**): Commitment operator address
     - `operator_blobs_private_key` (**string**): Blobs operator private key

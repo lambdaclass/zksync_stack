@@ -54,6 +54,11 @@ jq \
 	configs/explorer.config.json > custom_configs/explorer.json
 
 # ZK env
+proof_mode='"SkipEveryProof"'
+if [[ $(get_param .network.prover) == true ]]; then
+	proof_mode='"OnlyRealProofs"'
+fi
+
 sed "s;l2-inits/custom.init.env;l2-inits/$ZK_ENV.init.env;" configs/network.toml | \
 sed "s/^network.=.*$/network = $(get_param .network.l1.name | lower)/" | \
 sed "s/^fee_account_addr.=.*$/fee_account_addr = $(get_param .network.fee_account_addr)/" | \
@@ -62,6 +67,7 @@ sed "s/^operator_private_key.=.*$/operator_private_key = $(get_param .network.op
 sed "s/^operator_commit_eth_addr.=.*$/operator_commit_eth_addr = $(get_param .network.operator_commit_eth_addr)/" | \
 sed "s/^operator_blobs_private_key.=.*$/operator_blobs_private_key = $(get_param .network.operator_blobs_private_key)/" | \
 sed "s/^operator_blobs_eth_addr.=.*$/operator_blobs_eth_addr = $(get_param .network.operator_blobs_eth_addr)/" | \
+sed "s/^proof_sending_mode.=.*$/proof_sending_mode = ${proof_mode}/" | \
 sed "s/^fee_account_private_key.=.*$/fee_account_private_key = $(get_param .network.fee_account_private_key)/" > custom_configs/$ZK_ENV.toml
 
 # Makefile

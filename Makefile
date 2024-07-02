@@ -147,9 +147,6 @@ setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_SERVER_HOME}/prover/vk_setup_d
 setup-prover: download-prover
 	cp ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
 	cp -r ${ZKSYNC_SERVER_HOME}/etc/env/l2-inits ${ZKSYNC_PROVER_HOME}/etc/env
-	sed -i'' -e 's/^proof_sending_mode =.*/proof_sending_mode = "OnlyRealProofs"/' ${ZKSYNC_PROVER_HOME}/etc/env/base/eth_sender.toml
-	sed -i'' -e 's;^setup_data_path =.*;setup_data_path = "vk_setup_data_generator_server_fri/data/";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_prover.toml
-	sed -i'' -e 's;^universal_setup_path =.*;universal_setup_path = "../keys/setup/setup_2^26.key";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_proof_compressor.toml
 	rm -f ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env
 	cd ${ZKSYNC_PROVER_HOME}/prover && \
 		export ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} && \
@@ -157,7 +154,6 @@ setup-prover: download-prover
 		zk && \
 		zk env ${ZKSYNC_ENV} && \
 		zk f cargo run --features gpu --release --bin key_generator -- generate-sk-gpu all --recompute-if-missing
-	cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
 
 # Run
 

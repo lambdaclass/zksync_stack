@@ -1,0 +1,145 @@
+POST https://container.googleapis.com/v1beta1/projects/zksync-413615/zones/us-central1-c/clusters
+{
+  "cluster": {
+    "name": "zksync-dev-01",
+    "masterAuth": {
+      "clientCertificateConfig": {}
+    },
+    "network": "projects/zksync-413615/global/networks/default",
+    "addonsConfig": {
+      "httpLoadBalancing": {},
+      "horizontalPodAutoscaling": {},
+      "kubernetesDashboard": {
+        "disabled": true
+      },
+      "dnsCacheConfig": {},
+      "gcePersistentDiskCsiDriverConfig": {
+        "enabled": true
+      },
+      "gkeBackupAgentConfig": {
+        "enabled": true
+      },
+      "gcsFuseCsiDriverConfig": {}
+    },
+    "subnetwork": "projects/zksync-413615/regions/us-central1/subnetworks/default",
+    "nodePools": [
+      {
+        "name": "default-pool",
+        "config": {
+          "machineType": "g2-standard-32",
+          "diskSizeGb": 768,
+          "oauthScopes": [
+            "https://www.googleapis.com/auth/devstorage.read_only",
+            "https://www.googleapis.com/auth/logging.write",
+            "https://www.googleapis.com/auth/monitoring",
+            "https://www.googleapis.com/auth/servicecontrol",
+            "https://www.googleapis.com/auth/service.management.readonly",
+            "https://www.googleapis.com/auth/trace.append"
+          ],
+          "metadata": {
+            "disable-legacy-endpoints": "true"
+          },
+          "imageType": "COS_CONTAINERD",
+          "accelerators": [
+            {
+              "acceleratorCount": "1",
+              "acceleratorType": "nvidia-l4",
+              "gpuSharingConfig": {
+                "maxSharedClientsPerGpu": "10",
+                "gpuSharingStrategy": "TIME_SHARING"
+              },
+              "gpuDriverInstallationConfig": {
+                "gpuDriverVersion": "DEFAULT"
+              }
+            }
+          ],
+          "diskType": "pd-ssd",
+          "shieldedInstanceConfig": {},
+          "advancedMachineFeatures": {
+            "threadsPerCore": "2",
+            "enableNestedVirtualization": false
+          },
+          "spot": true,
+          "ephemeralStorageLocalSsdConfig": {
+            "localSsdCount": 1
+          }
+        },
+        "initialNodeCount": 1,
+        "autoscaling": {},
+        "management": {
+          "autoUpgrade": true,
+          "autoRepair": true
+        },
+        "networkConfig": {},
+        "upgradeSettings": {
+          "maxSurge": 1,
+          "strategy": "SURGE"
+        },
+        "queuedProvisioning": {}
+      }
+    ],
+    "locations": [
+      "us-central1-c"
+    ],
+    "networkPolicy": {},
+    "ipAllocationPolicy": {
+      "useIpAliases": true,
+      "stackType": "IPV4"
+    },
+    "masterAuthorizedNetworksConfig": {},
+    "binaryAuthorization": {
+      "evaluationMode": "DISABLED"
+    },
+    "autoscaling": {},
+    "networkConfig": {
+      "datapathProvider": "LEGACY_DATAPATH",
+      "inTransitEncryptionConfig": "IN_TRANSIT_ENCRYPTION_DISABLED"
+    },
+    "defaultMaxPodsConstraint": {
+      "maxPodsPerNode": "110"
+    },
+    "authenticatorGroupsConfig": {
+      "enabled": true,
+      "securityGroup": "gke-security-groups@lambdaclass.com"
+    },
+    "privateClusterConfig": {
+      "masterGlobalAccessConfig": {
+        "enabled": true
+      }
+    },
+    "databaseEncryption": {
+      "state": "DECRYPTED"
+    },
+    "shieldedNodes": {
+      "enabled": true
+    },
+    "releaseChannel": {
+      "channel": "REGULAR"
+    },
+    "notificationConfig": {
+      "pubsub": {}
+    },
+    "initialClusterVersion": "1.29.4-gke.1043002",
+    "location": "us-central1-c",
+    "loggingConfig": {
+      "componentConfig": {}
+    },
+    "monitoringConfig": {
+      "componentConfig": {
+        "enableComponents": [
+          "SYSTEM_COMPONENTS"
+        ]
+      },
+      "managedPrometheusConfig": {
+        "enabled": true
+      }
+    },
+    "fleet": {
+      "project": "zksync-413615"
+    },
+    "securityPostureConfig": {
+      "mode": "BASIC",
+      "vulnerabilityMode": "VULNERABILITY_DISABLED"
+    }
+  }
+}

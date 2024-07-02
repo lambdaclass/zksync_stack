@@ -32,7 +32,7 @@ deps:
 	sudo chmod +x /usr/bin/yq
 	# Node.js and yarn
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-	nvm install 20
+	. "$(NVM_DIR)/nvm.sh" && nvm install 20
 	corepack enable
 	echo 'Y' | yarn --version
 	# Rust
@@ -67,7 +67,7 @@ download-server: deps
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26
 	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/zkvyper-bin/v1.5.0
-	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/
+	mkdir -p ${ZKSYNC_SERVER_HOME}/etc/vyper-bin/v0.4.0
 	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc https://github.com/matter-labs/zksolc-bin/releases/download/v1.5.0/zksolc-linux-amd64-musl-v1.5.0
 	chmod +x ${ZKSYNC_SERVER_HOME}/etc/zksolc-bin/v1.5.0/zksolc
 	curl -L -o ${ZKSYNC_SERVER_HOME}/etc/solc-bin/0.8.26/solc https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux
@@ -146,10 +146,10 @@ setup-portal: download-portal
 setup-prover: FRI_PROVER_SETUP_DATA_PATH=${ZKSYNC_SERVER_HOME}/prover/vk_setup_data_generator_server_fri/data
 setup-prover: download-prover
 	cp ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_PROVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml
-	cp -r ${ZKSYNC_SERVER_HOME}/etc/env/configs/${ZKSYNC_ENV}.toml ${ZKSYNC_SERVER_HOME}/etc/env/l2-inits ${ZKSYNC_PROVER_HOME}/etc/env
+	cp -r ${ZKSYNC_SERVER_HOME}/etc/env/l2-inits ${ZKSYNC_PROVER_HOME}/etc/env
 	sed -i'' -e 's/^proof_sending_mode =.*/proof_sending_mode = "OnlyRealProofs"/' ${ZKSYNC_PROVER_HOME}/etc/env/base/eth_sender.toml
 	sed -i'' -e 's;^setup_data_path =.*;setup_data_path = "vk_setup_data_generator_server_fri/data/";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_prover.toml
-	sed -i'' -e 's;^universal_setup_path =.*;universal_setup_path = "../keys/setup/setup_2^26.kiey";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_proof_compressor.toml
+	sed -i'' -e 's;^universal_setup_path =.*;universal_setup_path = "../keys/setup/setup_2^26.key";' ${ZKSYNC_PROVER_HOME}/etc/env/base/fri_proof_compressor.toml
 	rm -f ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env
 	cd ${ZKSYNC_PROVER_HOME}/prover && \
 		export ZKSYNC_HOME=${ZKSYNC_PROVER_HOME} && \
@@ -157,7 +157,7 @@ setup-prover: download-prover
 		zk && \
 		zk env ${ZKSYNC_ENV} && \
 		zk f cargo run --features gpu --release --bin key_generator -- generate-sk-gpu all --recompute-if-missing
-		cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
+	cp ${ZKSYNC_PROVER_HOME}/etc/env/target/${ZKSYNC_ENV}.env ${ZKSYNC_SERVER_HOME}/etc/env/target/
 
 # Run
 
@@ -200,7 +200,7 @@ run-prover-witness-generators: $(ZKSYNC_PROVER_HOME)
 		zk f cargo run --release --bin zksync_witness_generator -- --all_rounds
 
 run-prover-witness-vector-gen: $(ZKSYNC_PROVER_HOME)
-	cd $(ZKSYNC_PROVER_HOME) && \
+	cd $(ZKSYNC_PROVER_HOME)/prover && \
 		PATH=$(ZKSYNC_PROVER_HOME)/bin:$(PATH) \
 		ZKSYNC_HOME=$(ZKSYNC_PROVER_HOME) \
 		FRI_WITNESS_VECTOR_GENERATOR_PROMETHEUS_LISTENER_PORT=3420 \
